@@ -35,6 +35,7 @@ app.use(
 );
 
 app.use(Router);
+console.log(process.env.PORT);
 
 app.listen(PORT, () => {
     console.log("Server is running on port", PORT);
