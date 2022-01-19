@@ -17,4 +17,4 @@ const party = new Schema(
     },
     { versionKey: false, timestamps: true }
 );
-module.exports = model("party", party);
+export default model("party", party);

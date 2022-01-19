@@ -1,31 +1,19 @@
 import { Route, Tags, Post, Get, Controller, Body, Query } from "tsoa";
 import { Response } from '../models/interfaces';
-import PartyModel from '../models/party';
-import _ from 'lodash';
-const { genHash } = require('../helpers/utility')
+import CategoryModel from '../models/cateory';
 
-interface party {
+interface category {
     name: string,
-    address: number,
-    gstNumber: string,
-    phone: number,
-    pinCode: number,
-    contactPerson: string,
-    userName: string,
-    password: string
 }
 
-@Tags('Party')
-@Route("party")
+@Tags('Category')
+@Route("category")
 export default class PartyController extends Controller {
 
     @Post("/save")
-    public async save(@Body() request: party): Promise<Response> {
+    public async save(@Body() request: category): Promise<Response> {
         try {
-            const hashedPassword = await genHash(request.password);
-            console.log(hashedPassword);
-            
-            const saveResponse = await PartyModel.create({...request, password: hashedPassword});
+            const saveResponse = await CategoryModel.create(request);
             return {
                 data: saveResponse,
                 error: '',
@@ -44,20 +32,10 @@ export default class PartyController extends Controller {
             }
         }
     }
-
-    @Post("/login")
-    public async login(): Promise<Response> {
-        return {
-            data: '',
-            error: '',
-            message: '',
-            status: 200
-        }
-    }
     @Get("/getAll")
     public async getAll(): Promise<Response> {
         try {
-            const getAllResponse = await PartyModel.find();
+            const getAllResponse = await CategoryModel.find();
             return {
                 data: getAllResponse,
                 error: '',
@@ -81,7 +59,7 @@ export default class PartyController extends Controller {
         try {
             console.log('id here', id);
             
-            const getResponse = await PartyModel.findOne({_id: id});
+            const getResponse = await CategoryModel.findOne({_id: id});
             return {
                 data: getResponse,
                 error: '',
@@ -100,5 +78,4 @@ export default class PartyController extends Controller {
             }
         }
     }
-
 }
