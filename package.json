@@ -2,7 +2,7 @@
   "name": "inventory-system",
   "version": "1.0.0",
   "description": "",
-  "main": "src/index.ts",
+  "main": "build/index.js",
   "scripts": {
     "start": "tsc && node build/index.js",
     "predev": "npm run swagger",
