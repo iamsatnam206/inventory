@@ -1,0 +1,19 @@
+{
+    "entryFile": "src/index.ts",
+    "noImplicitAdditionalProperties": "throw-on-extras",
+    "spec": {
+        "outputDirectory": "public",
+        "specVersion": 3,
+        "description": "Inventory Management System",
+        "version": "0.1.0",
+        "license": "license",
+        "securityDefinitions": {
+            "Bearer": {
+                "type": "apiKey",
+                "name": "Authorization",
+                "in": "header",
+                "description": "JWT Authorization header using the Bearer scheme."
+            }
+        }
+    }
+}

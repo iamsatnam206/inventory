@@ -1,0 +1,161 @@
+{
+	"components": {
+		"examples": {},
+		"headers": {},
+		"parameters": {},
+		"requestBodies": {},
+		"responses": {},
+		"schemas": {
+			"PingResponse": {
+				"properties": {
+					"message": {
+						"type": "string"
+					}
+				},
+				"required": [
+					"message"
+				],
+				"type": "object",
+				"additionalProperties": false
+			},
+			"PartyResponse": {
+				"properties": {
+					"data": {},
+					"status": {
+						"type": "number",
+						"format": "double"
+					},
+					"error": {
+						"type": "string"
+					},
+					"message": {
+						"type": "string"
+					}
+				},
+				"required": [
+					"data",
+					"status",
+					"error",
+					"message"
+				],
+				"type": "object",
+				"additionalProperties": false
+			},
+			"party": {
+				"properties": {
+					"username": {
+						"type": "string"
+					},
+					"phoneNumber": {
+						"type": "number",
+						"format": "double"
+					}
+				},
+				"required": [
+					"username",
+					"phoneNumber"
+				],
+				"type": "object",
+				"additionalProperties": false
+			}
+		},
+		"securitySchemes": {
+			"Bearer": {
+				"type": "apiKey",
+				"name": "Authorization",
+				"in": "header",
+				"description": "JWT Authorization header using the Bearer scheme."
+			}
+		}
+	},
+	"info": {
+		"title": "inventory-system",
+		"version": "0.1.0",
+		"description": "Inventory Management System",
+		"license": {
+			"name": "license"
+		},
+		"contact": {}
+	},
+	"openapi": "3.0.0",
+	"paths": {
+		"/ping": {
+			"get": {
+				"operationId": "GetMessage",
+				"responses": {
+					"200": {
+						"description": "Ok",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/PingResponse"
+								}
+							}
+						}
+					}
+				},
+				"security": [],
+				"parameters": []
+			}
+		},
+		"/party/save": {
+			"post": {
+				"operationId": "Save",
+				"responses": {
+					"200": {
+						"description": "Ok",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/PartyResponse"
+								}
+							}
+						}
+					}
+				},
+				"tags": [
+					"Party"
+				],
+				"security": [],
+				"parameters": [],
+				"requestBody": {
+					"required": true,
+					"content": {
+						"application/json": {
+							"schema": {
+								"$ref": "#/components/schemas/party"
+							}
+						}
+					}
+				}
+			}
+		},
+		"/party/login": {
+			"post": {
+				"operationId": "Login",
+				"responses": {
+					"200": {
+						"description": "Ok",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/PartyResponse"
+								}
+							}
+						}
+					}
+				},
+				"tags": [
+					"Party"
+				],
+				"security": [],
+				"parameters": []
+			}
+		}
+	},
+	"servers": [
+		{
+			"url": "/"
+		}
+	]
+}
