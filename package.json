@@ -4,7 +4,7 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "start": "node index.ts",
+    "start": "tsc && node build/index.js",
     "predev": "npm run swagger",
     "prebuild": "npm run swagger",
     "build": "tsc",
