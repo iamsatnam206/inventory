@@ -4,14 +4,16 @@ const Route = express.Router();
 
 Route.post('/save', async (req: Request, res: Response) => {
     const body = req.body;
-    const { name } = body;
+    const { name, id } = body;
     const controller = new CategoryController();
-    const respsone = await controller.save({name});
+    const respsone = await controller.save({name, id});
     return res.send(respsone)
 });
 Route.get('/getAll', async (req: Request, res: Response) => {
+    const query = req.query;
+    const {pageNumber, pageSize} = query;
     const controller = new CategoryController();
-    const respsone = await controller.getAll();
+    const respsone = await controller.getAll(pageNumber ? +pageNumber: 1, pageSize ? +pageSize : 20);
     return res.send(respsone)
 });
 Route.get('/get', async (req: Request, res: Response) => {

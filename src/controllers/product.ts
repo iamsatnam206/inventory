@@ -1,4 +1,5 @@
 import { Route, Tags, Post, Path, Controller, Body, Get, Query } from "tsoa";
+import { getAll, upsert } from "../helpers/db";
 import { Response } from '../models/interfaces';
 import ProductModel from '../models/products';
 
@@ -8,7 +9,11 @@ interface product {
     description: string,
     hsnCode: number,
     taxSlab: number,
-    company: string
+    company: string,
+    hsnCodeDescription: string, 
+    units: number, 
+    openingQuantity: number,
+    id?: string
 }
 
 @Tags('Product')
@@ -18,7 +23,7 @@ export default class PartyController extends Controller {
     @Post("/save")
     public async save(@Body() request: product): Promise<Response> {
         try {
-            const saveResponse = await ProductModel.create(request);
+            const saveResponse = await upsert(ProductModel, request, request.id);
             return {
                 data: saveResponse,
                 error: '',
@@ -38,9 +43,9 @@ export default class PartyController extends Controller {
         }
     }
     @Get("/getAll")
-    public async getAll(): Promise<Response> {
+    public async getAll(@Query('pageNumber') pageNumber: number = 1, @Query() pageSize: number = 20): Promise<Response> {
         try {
-            const getAllResponse = await ProductModel.find();
+            const getAllResponse = await getAll(ProductModel, pageNumber, pageSize);
             return {
                 data: getAllResponse,
                 error: '',

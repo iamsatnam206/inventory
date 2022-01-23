@@ -1,9 +1,11 @@
 import { Route, Tags, Post, Get, Controller, Body, Query } from "tsoa";
 import { Response } from '../models/interfaces';
 import CategoryModel from '../models/cateory';
+import { getAll, upsert } from "../helpers/db";
 
 interface category {
     name: string,
+    id?: string
 }
 
 @Tags('Category')
@@ -13,7 +15,7 @@ export default class PartyController extends Controller {
     @Post("/save")
     public async save(@Body() request: category): Promise<Response> {
         try {
-            const saveResponse = await CategoryModel.create(request);
+            const saveResponse = await upsert(CategoryModel, request, request.id);
             return {
                 data: saveResponse,
                 error: '',
@@ -33,9 +35,9 @@ export default class PartyController extends Controller {
         }
     }
     @Get("/getAll")
-    public async getAll(): Promise<Response> {
+    public async getAll(@Query('pageNumber') pageNumber: number = 1, @Query() pageSize: number = 20): Promise<Response> {
         try {
-            const getAllResponse = await CategoryModel.find();
+            const getAllResponse = await getAll(CategoryModel, pageNumber, pageSize);
             return {
                 data: getAllResponse,
                 error: '',

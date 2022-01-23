@@ -9,20 +9,21 @@ Route.post('/save', async (req: Request, res: Response) => {
         description,
         hsnCode,
         taxSlab,
-        company } = req.body;
+        company, hsnCodeDescription, units, openingQuantity, id } = body;
     const controller = new ProductController();
     const respsone = await controller.save({itemName,
         itemCategory,
         description,
         hsnCode,
         taxSlab,
-        company});
+        company, hsnCodeDescription, units, openingQuantity, id});
     return res.send(respsone)
 });
 
 Route.get('/getAll', async (req: Request, res: Response) => {
+    const {pageNumber, pageSize} = req.query;
     const controller = new ProductController();
-    const respsone = await controller.getAll();
+    const respsone = await controller.getAll(pageNumber ? +pageNumber: 1, pageSize ? +pageSize : 20);
     return res.send(respsone)
 });
 Route.get('/get', async (req: Request, res: Response) => {

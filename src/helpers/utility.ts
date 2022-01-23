@@ -15,3 +15,6 @@ module.exports.genHash = (stringValue: string) => {
         });
     })
 }
+module.exports.verifyHash = (password: string, hash: string) => {
+    return bcrypt.compare(password, hash);
+}

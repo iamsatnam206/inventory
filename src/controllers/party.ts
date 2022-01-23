@@ -1,41 +1,58 @@
-import { Route, Tags, Post, Get, Controller, Body, Query } from "tsoa";
+import { Route, Tags, Post, Get, Controller, Body, Query, Security } from "tsoa";
 import { Response } from '../models/interfaces';
 import PartyModel from '../models/party';
 import _ from 'lodash';
-const { genHash } = require('../helpers/utility')
+import { signToken, verifyToken } from "../helpers/jwt";
+import { getAll, upsert } from "../helpers/db";
+const { genHash, verifyHash } = require('../helpers/utility')
 
-interface party {
+interface partySave {
     name: string,
-    address: number,
+    address: string,
     gstNumber: string,
     phone: number,
     pinCode: number,
     contactPerson: string,
     userName: string,
-    password: string
+    password: string,
+    state: string,
+    openingBalance: number,
+    id?: string
+}
+interface partyLogin {
+    userName: string,
+    password: string,
+    token: string
 }
 
 @Tags('Party')
 @Route("party")
-export default class PartyController extends Controller {
+export default class PartyController extends Controller { 
 
     @Post("/save")
-    public async save(@Body() request: party): Promise<Response> {
+    @Security('Bearer')
+    public async save(@Body() request: partySave): Promise<Response> {
         try {
-            const hashedPassword = await genHash(request.password);
-            console.log(hashedPassword);
-            
-            const saveResponse = await PartyModel.create({...request, password: hashedPassword});
+            const cloned: Partial<partySave> = {...request};
+            if(request.id) {
+                delete cloned.password;
+                delete cloned.userName;
+                
+            } else {
+                const hashedPassword = await genHash(request.password);
+                cloned.password = hashedPassword
+            }
+            const saveResponse = await upsert(PartyModel, cloned, request.id);
             return {
                 data: saveResponse,
                 error: '',
-                message: 'Success',
+                message: 'Success', 
                 status: 200
             }
         }
         catch (err: any) {
             console.log(err);
-            
+
             return {
                 data: null,
                 error: err.message ? err.message : err,
@@ -46,18 +63,44 @@ export default class PartyController extends Controller {
     }
 
     @Post("/login")
-    public async login(): Promise<Response> {
-        return {
-            data: '',
-            error: '',
-            message: '',
-            status: 200
+    public async login(@Body() partyLogin: partyLogin): Promise<Response> {
+        // check for username
+        try {
+            const theOne = await PartyModel.findOne({ userName: partyLogin.userName });
+            if (theOne) {
+                const verified = verifyHash(partyLogin.password, theOne.password)
+                if (verified) {
+                    // sign the token
+                    theOne.token = await signToken(theOne._id, theOne.roleId);
+                    return {
+                        data: theOne,
+                        error: '',
+                        message: 'Successful',
+                        status: 200
+                    }
+                } else {
+                    throw new Error('Password is incorrect!')
+                }
+            } else {
+                throw new Error('User doesn\'t exists')
+            }
         }
+        catch (err: any) {
+            return {
+                data: '',
+                error: err.message ? err.message : err,
+                message: '',
+                status: 400
+            }
+        }
+
     }
     @Get("/getAll")
-    public async getAll(): Promise<Response> {
+    @Security('Bearer')
+    public async getAll(@Query('pageNumber') pageNumber: number = 1, @Query() pageSize: number = 20): Promise<Response> {
         try {
-            const getAllResponse = await PartyModel.find();
+            const getAllResponse = await getAll(PartyModel, pageNumber, pageSize);
+            
             return {
                 data: getAllResponse,
                 error: '',
@@ -67,7 +110,7 @@ export default class PartyController extends Controller {
         }
         catch (err: any) {
             console.log(err);
-            
+
             return {
                 data: null,
                 error: err.message ? err.message : err,
@@ -77,11 +120,12 @@ export default class PartyController extends Controller {
         }
     }
     @Get("/get")
+    @Security('Bearer')
     public async get(@Query() id: string): Promise<Response> {
         try {
             console.log('id here', id);
-            
-            const getResponse = await PartyModel.findOne({_id: id});
+
+            const getResponse = await PartyModel.findOne({ _id: id });
             return {
                 data: getResponse,
                 error: '',
@@ -91,7 +135,7 @@ export default class PartyController extends Controller {
         }
         catch (err: any) {
             console.log(err);
-            
+
             return {
                 data: null,
                 error: err.message ? err.message : err,
