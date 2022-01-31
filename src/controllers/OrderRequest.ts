@@ -1,21 +1,35 @@
-import { Route, Tags, Post, Get, Controller, Body, Query } from "tsoa";
+import { Route, Tags, Post, Get, Controller, Body, Query, Security } from "tsoa";
 import { Response } from '../models/interfaces';
-import CategoryModel from '../models/cateory';
+import OrderRequestModel from '../models/orderRequest';
 import { getAll, upsert } from "../helpers/db";
+import { Request } from "express";
+import { OTHER } from "../constants/roles";
 
-interface category {
-    name: string,
-    id?: string
+interface orderRequest {
+    items: {
+        productId: string,
+        quantity: number,
+    }[]
+    id: string
 }
 
-@Tags('Category')
-@Route("category")
+@Tags('OrderRequest')
+@Route("orderRequest")
 export default class PartyController extends Controller {
+    request: Request;
 
+    constructor(request: Request) {
+        super()
+        this.request = request
+    }
+    /**
+    * Requires superadmin or other auth token
+    */
+    @Security('Bearer')
     @Post("/save")
-    public async save(@Body() request: category): Promise<Response> {
+    public async save(@Body() request: orderRequest): Promise<Response> {
         try {
-            const saveResponse = await upsert(CategoryModel, request, request.id);
+            const saveResponse = await upsert(OrderRequestModel, {items: request, partyId: this.request.body.user.id}, request.id);
             return {
                 data: saveResponse,
                 error: '',
@@ -34,10 +48,15 @@ export default class PartyController extends Controller {
             }
         }
     }
+
+    /**
+    * Requires superadmin or other auth token
+    */
+    @Security('Bearer')
     @Get("/getAll")
     public async getAll(@Query('pageNumber') pageNumber: number = 1, @Query() pageSize: number = 20): Promise<Response> {
         try {
-            const getAllResponse = await getAll(CategoryModel, {}, pageNumber, pageSize);
+            const getAllResponse = await getAll(OrderRequestModel, (this.request.body.user.id === OTHER.id ? {partyId: this.request.body.user.id}: {}), pageNumber, pageSize);
             return {
                 data: getAllResponse,
                 error: '',
@@ -56,12 +75,15 @@ export default class PartyController extends Controller {
             }
         }
     }
+
+    /**
+    * Requires superadmin or other auth token
+    */
+    @Security('Bearer')
     @Get("/get")
     public async get(@Query() id: string): Promise<Response> {
         try {
-            console.log('id here', id);
-            
-            const getResponse = await CategoryModel.findOne({_id: id});
+            const getResponse = await OrderRequestModel.findOne({_id: id});
             return {
                 data: getResponse,
                 error: '',

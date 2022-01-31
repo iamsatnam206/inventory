@@ -27,17 +27,16 @@ interface partyLogin {
 
 @Tags('Party')
 @Route("party")
-export default class PartyController extends Controller { 
-
+export default class PartyController extends Controller {
     @Post("/save")
     @Security('Bearer')
     public async save(@Body() request: partySave): Promise<Response> {
         try {
-            const cloned: Partial<partySave> = {...request};
-            if(request.id) {
+            const cloned: Partial<partySave> = { ...request };
+            if (request.id) {
                 delete cloned.password;
                 delete cloned.userName;
-                
+
             } else {
                 const hashedPassword = await genHash(request.password);
                 cloned.password = hashedPassword
@@ -46,7 +45,7 @@ export default class PartyController extends Controller {
             return {
                 data: saveResponse,
                 error: '',
-                message: 'Success', 
+                message: 'Success',
                 status: 200
             }
         }
@@ -99,8 +98,8 @@ export default class PartyController extends Controller {
     @Security('Bearer')
     public async getAll(@Query('pageNumber') pageNumber: number = 1, @Query() pageSize: number = 20): Promise<Response> {
         try {
-            const getAllResponse = await getAll(PartyModel, pageNumber, pageSize);
-            
+            const getAllResponse = await getAll(PartyModel, {}, pageNumber, pageSize);
+
             return {
                 data: getAllResponse,
                 error: '',

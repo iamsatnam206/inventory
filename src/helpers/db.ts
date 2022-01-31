@@ -5,8 +5,8 @@ export const getById = async (model: Model<any>, id: string) => {
     return data;
 }
 
-export const getAll = async (model: Model<any>, pageNumber: number = 1, pageSize: number = 20) => {
-    const items = await model.find().skip((pageNumber - 1) * pageSize).limit(pageSize)
+export const getAll = async (model: Model<any>, query: any, pageNumber: number = 1, pageSize: number = 20) => {
+    const items = await model.find(query).skip((pageNumber - 1) * pageSize).limit(pageSize)
     const totalItems = await model.find().count();
     return {items, pageNumber, pageSize, totalItems};
 }

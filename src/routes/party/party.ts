@@ -35,7 +35,7 @@ Route.post('/save', async (req: Request, res: Response, next: NextFunction) => {
         pinCode,
         contactPerson, openingBalance,
         state,
-        userName,
+        userName: userName.toLowerCase(),
         password,
         id
     });

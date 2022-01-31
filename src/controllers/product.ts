@@ -45,7 +45,7 @@ export default class PartyController extends Controller {
     @Get("/getAll")
     public async getAll(@Query('pageNumber') pageNumber: number = 1, @Query() pageSize: number = 20): Promise<Response> {
         try {
-            const getAllResponse = await getAll(ProductModel, pageNumber, pageSize);
+            const getAllResponse = await getAll(ProductModel, {}, pageNumber, pageSize);
             return {
                 data: getAllResponse,
                 error: '',
