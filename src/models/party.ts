@@ -19,7 +19,8 @@ const party = new Schema(
         openingBalance: {type: Number, default: 0, required: true},
         roleId: {type: Number, default: OTHER.id, required: true},
         roleName: {type: String, default: OTHER.name, required: true},
-        token: {type: String, required: false, default: ''}
+        token: {type: String, required: false, default: ''},
+        isRetailer: {type: Boolean, default: true, required: true}
     },
     { versionKey: false, timestamps: true }
 );

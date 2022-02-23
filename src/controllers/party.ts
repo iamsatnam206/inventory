@@ -17,6 +17,7 @@ interface partySave {
     password: string,
     state: string,
     openingBalance: number,
+    isRetailer: boolean,
     id?: string
 }
 interface partyLogin {
