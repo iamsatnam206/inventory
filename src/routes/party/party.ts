@@ -54,13 +54,13 @@ Route.post('/login', async (req: Request, res: Response) => {
     return res.send(respsone)
 });
 
-Route.get('/getAll', OtherAuth, async (req: Request, res: Response) => {
+Route.get('/getAll', async (req: Request, res: Response) => {
     const { pageNumber, pageSize } = req.query;
     const controller = new PartyController();
     const respsone = await controller.getAll(pageNumber ? +pageNumber : 1, pageSize ? +pageSize : 20);
     return res.send(respsone)
 });
-Route.get('/get', OtherAuth, async (req: Request, res: Response) => {
+Route.get('/get', async (req: Request, res: Response) => {
     const query = req.query.id;
     const controller = new PartyController();
     if (query) {
