@@ -13,7 +13,7 @@ const party = new Schema(
         taxSlab: { type: String, required: true },
         company: { type: Schema.Types.ObjectId, trim: true, required: true },
         hsnCodeDescription: {type: String, trim: true, required: true},
-        units: {type: Number, required: true, default: 0},
+        units: {type: String, required: true, default: ''},
         openingQuantity: {type: Number, default: 0, required: true}
     },
     { versionKey: false, timestamps: true }

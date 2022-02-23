@@ -11,7 +11,7 @@ interface product {
     taxSlab: number,
     company: string,
     hsnCodeDescription: string, 
-    units: number, 
+    units: string, 
     openingQuantity: number,
     id?: string
 }
