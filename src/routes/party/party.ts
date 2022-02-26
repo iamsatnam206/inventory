@@ -12,7 +12,7 @@ Route.post('/save', async (req: Request, res: Response, next: NextFunction) => {
         pinCode,
         contactPerson,
         userName,
-        password, state, openingBalance, id } = body;
+        password, state, openingBalance, id, isRetailer } = body;
     const controller = new PartyController();
     if (id) {
         await OtherAuth(req, res, () => {
@@ -37,7 +37,8 @@ Route.post('/save', async (req: Request, res: Response, next: NextFunction) => {
         state,
         userName: userName.toLowerCase(),
         password,
-        id
+        id,
+        isRetailer
     });
     return res.send(respsone)
 });

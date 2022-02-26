@@ -79,6 +79,9 @@
 						"type": "number",
 						"format": "double"
 					},
+					"isRetailer": {
+						"type": "boolean"
+					},
 					"id": {
 						"type": "string"
 					}
@@ -93,7 +96,8 @@
 					"userName",
 					"password",
 					"state",
-					"openingBalance"
+					"openingBalance",
+					"isRetailer"
 				],
 				"type": "object",
 				"additionalProperties": false
@@ -144,8 +148,7 @@
 						"type": "string"
 					},
 					"units": {
-						"type": "number",
-						"format": "double"
+						"type": "string"
 					},
 					"openingQuantity": {
 						"type": "number",
@@ -200,6 +203,56 @@
 				],
 				"type": "object",
 				"additionalProperties": false
+			},
+			"invoiceRequest": {
+				"properties": {
+					"billedFrom": {
+						"type": "string"
+					},
+					"billedTo": {
+						"type": "string"
+					},
+					"items": {
+						"items": {
+							"properties": {
+								"discount": {
+									"type": "number",
+									"format": "double"
+								},
+								"rate": {
+									"type": "number",
+									"format": "double"
+								},
+								"quantity": {
+									"type": "number",
+									"format": "double"
+								},
+								"productId": {
+									"type": "string"
+								}
+							},
+							"required": [
+								"discount",
+								"rate",
+								"quantity",
+								"productId"
+							],
+							"type": "object"
+						},
+						"type": "array"
+					},
+					"id": {
+						"type": "string"
+					}
+				},
+				"required": [
+					"billedFrom",
+					"billedTo",
+					"items",
+					"id"
+				],
+				"type": "object",
+				"additionalProperties": false
 			}
 		},
 		"securitySchemes": {
@@ -213,7 +266,7 @@
 	},
 	"info": {
 		"title": "inventory-system",
-		"version": "0.1.0",
+		"version": "0.1.3",
 		"description": "Inventory Management System",
 		"license": {
 			"name": "license"
@@ -549,6 +602,15 @@
 							"format": "double",
 							"type": "number"
 						}
+					},
+					{
+						"in": "query",
+						"name": "itemCategory",
+						"required": false,
+						"schema": {
+							"default": "",
+							"type": "string"
+						}
 					}
 				]
 			}
@@ -693,6 +755,112 @@
 						"Bearer": []
 					}
 				],
+				"parameters": [
+					{
+						"in": "query",
+						"name": "id",
+						"required": true,
+						"schema": {
+							"type": "string"
+						}
+					}
+				]
+			}
+		},
+		"/invoice/save": {
+			"post": {
+				"operationId": "Save",
+				"responses": {
+					"200": {
+						"description": "Ok",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/Response"
+								}
+							}
+						}
+					}
+				},
+				"tags": [
+					"Invoice"
+				],
+				"security": [],
+				"parameters": [],
+				"requestBody": {
+					"required": true,
+					"content": {
+						"application/json": {
+							"schema": {
+								"$ref": "#/components/schemas/invoiceRequest"
+							}
+						}
+					}
+				}
+			}
+		},
+		"/invoice/getAll": {
+			"get": {
+				"operationId": "GetAll",
+				"responses": {
+					"200": {
+						"description": "Ok",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/Response"
+								}
+							}
+						}
+					}
+				},
+				"tags": [
+					"Invoice"
+				],
+				"security": [],
+				"parameters": [
+					{
+						"in": "query",
+						"name": "pageNumber",
+						"required": false,
+						"schema": {
+							"default": 1,
+							"format": "double",
+							"type": "number"
+						}
+					},
+					{
+						"in": "query",
+						"name": "pageSize",
+						"required": false,
+						"schema": {
+							"default": 20,
+							"format": "double",
+							"type": "number"
+						}
+					}
+				]
+			}
+		},
+		"/invoice/get": {
+			"get": {
+				"operationId": "Get",
+				"responses": {
+					"200": {
+						"description": "Ok",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/Response"
+								}
+							}
+						}
+					}
+				},
+				"tags": [
+					"Invoice"
+				],
+				"security": [],
 				"parameters": [
 					{
 						"in": "query",

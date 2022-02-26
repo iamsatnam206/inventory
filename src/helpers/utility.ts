@@ -18,3 +18,6 @@ module.exports.genHash = (stringValue: string) => {
 module.exports.verifyHash = (password: string, hash: string) => {
     return bcrypt.compare(password, hash);
 }
+export const getOtp = async (max: number, min: number) => {
+    return Math.floor(Math.random() * (max - min)) + min
+};
