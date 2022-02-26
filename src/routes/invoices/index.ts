@@ -1,4 +1,4 @@
 module.exports = {
-    party: require('./invoices')
+    party: require('./proformaInvoice')
   };
   

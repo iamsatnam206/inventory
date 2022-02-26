@@ -4,7 +4,7 @@ import PartyController from '../controllers/party';
 import ProductController from '../controllers/product';
 
 import OrderRequestController from '../controllers/OrderRequest';
-import InvoiceController from '../controllers/invoices';
+import InvoiceController from '../controllers/proformaInvoices';
 
 
 
@@ -21,7 +21,7 @@ for (const property in partyRoute) {
   Route.use('/party', partyRoute[property]);
 }
 for (const property in invoiceRoute) {
-  Route.use('/invoice', invoiceRoute[property]);
+  Route.use('/proformaInvoice', invoiceRoute[property]);
 }
 for (const property in cateoryRoute) {
   Route.use('/category', cateoryRoute[property]);

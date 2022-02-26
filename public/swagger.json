@@ -767,7 +767,7 @@
 				]
 			}
 		},
-		"/invoice/save": {
+		"/proformaInvoice/save": {
 			"post": {
 				"operationId": "Save",
 				"responses": {
@@ -783,7 +783,7 @@
 					}
 				},
 				"tags": [
-					"Invoice"
+					"ProformaInvoice"
 				],
 				"security": [],
 				"parameters": [],
@@ -799,7 +799,7 @@
 				}
 			}
 		},
-		"/invoice/getAll": {
+		"/proformaInvoice/getAll": {
 			"get": {
 				"operationId": "GetAll",
 				"responses": {
@@ -815,7 +815,7 @@
 					}
 				},
 				"tags": [
-					"Invoice"
+					"ProformaInvoice"
 				],
 				"security": [],
 				"parameters": [
@@ -842,7 +842,7 @@
 				]
 			}
 		},
-		"/invoice/get": {
+		"/proformaInvoice/get": {
 			"get": {
 				"operationId": "Get",
 				"responses": {
@@ -858,7 +858,7 @@
 					}
 				},
 				"tags": [
-					"Invoice"
+					"ProformaInvoice"
 				],
 				"security": [],
 				"parameters": [

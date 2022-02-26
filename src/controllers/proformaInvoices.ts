@@ -1,6 +1,6 @@
 import { Route, Tags, Post, Get, Controller, Body, Query, Security } from "tsoa";
 import { Response } from '../models/interfaces';
-import InvoiceModel from '../models/invoice';
+import InvoiceModel from '../models/proformaInvoice';
 import { getAll, upsert } from "../helpers/db";
 import { getOtp } from '../helpers/utility'
 import { Request } from "express";
@@ -17,8 +17,8 @@ interface invoiceRequest {
     id: string
 }
 
-@Tags('Invoice')
-@Route("invoice")
+@Tags('ProformaInvoice')
+@Route("proformaInvoice")
 export default class PartyController extends Controller {
     request: Request;
 

@@ -17,4 +17,4 @@ const name = new Schema(
     },
     { versionKey: false, timestamps: true }
 );
-export default model("invoices", name);
+export default model("proformainvoice", name);

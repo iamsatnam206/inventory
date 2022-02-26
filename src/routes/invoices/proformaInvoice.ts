@@ -1,5 +1,5 @@
 import express, { Request, Response } from 'express'
-import InvoiceController from '../../controllers/invoices';
+import InvoiceController from '../../controllers/proformaInvoices';
 import { OtherAuth } from '../../middlewares/auth';
 const Route = express.Router();
 
