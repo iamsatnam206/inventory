@@ -248,8 +248,181 @@
 				"required": [
 					"billedFrom",
 					"billedTo",
-					"items",
-					"id"
+					"items"
+				],
+				"type": "object",
+				"additionalProperties": false
+			},
+			"saleInvoice": {
+				"properties": {
+					"billedFrom": {
+						"type": "string"
+					},
+					"billedTo": {
+						"type": "string"
+					},
+					"shippingAddress": {
+						"type": "string"
+					},
+					"invoiceDate": {
+						"type": "string"
+					},
+					"dispatchThrough": {
+						"type": "string"
+					},
+					"products": {
+						"items": {
+							"type": "string"
+						},
+						"type": "array"
+					},
+					"id": {
+						"type": "string"
+					}
+				},
+				"required": [
+					"billedFrom",
+					"billedTo",
+					"shippingAddress",
+					"invoiceDate",
+					"dispatchThrough",
+					"products"
+				],
+				"type": "object",
+				"additionalProperties": false
+			},
+			"IPurchaseInvoice": {
+				"properties": {
+					"billedFrom": {
+						"type": "string"
+					},
+					"billedTo": {
+						"type": "string"
+					},
+					"invoiceDate": {
+						"type": "string"
+					},
+					"products": {
+						"items": {
+							"properties": {
+								"amountWithoutTax": {
+									"type": "number",
+									"format": "double"
+								},
+								"quantity": {
+									"type": "number",
+									"format": "double"
+								},
+								"productId": {
+									"type": "string"
+								}
+							},
+							"required": [
+								"amountWithoutTax",
+								"quantity",
+								"productId"
+							],
+							"type": "object"
+						},
+						"type": "array"
+					},
+					"id": {
+						"type": "string"
+					}
+				},
+				"required": [
+					"billedFrom",
+					"billedTo",
+					"invoiceDate",
+					"products"
+				],
+				"type": "object",
+				"additionalProperties": false
+			},
+			"IReceipt": {
+				"properties": {
+					"receiptDate": {
+						"type": "string"
+					},
+					"fromParty": {
+						"type": "string"
+					},
+					"toParty": {
+						"type": "string"
+					},
+					"amount": {
+						"type": "number",
+						"format": "double"
+					},
+					"refNo": {
+						"type": "string"
+					},
+					"isPayment": {
+						"type": "boolean"
+					},
+					"id": {
+						"type": "string"
+					}
+				},
+				"required": [
+					"receiptDate",
+					"fromParty",
+					"toParty",
+					"amount",
+					"refNo",
+					"isPayment"
+				],
+				"type": "object",
+				"additionalProperties": false
+			},
+			"INotes": {
+				"properties": {
+					"fromParty": {
+						"type": "string"
+					},
+					"toParty": {
+						"type": "string"
+					},
+					"receiptDate": {
+						"type": "string"
+					},
+					"products": {
+						"items": {
+							"properties": {
+								"prices": {
+									"type": "number",
+									"format": "double"
+								},
+								"quantity": {
+									"type": "number",
+									"format": "double"
+								},
+								"productId": {
+									"type": "string"
+								}
+							},
+							"required": [
+								"prices",
+								"quantity",
+								"productId"
+							],
+							"type": "object"
+						},
+						"type": "array"
+					},
+					"isDeliveryNote": {
+						"type": "boolean"
+					},
+					"id": {
+						"type": "string"
+					}
+				},
+				"required": [
+					"fromParty",
+					"toParty",
+					"receiptDate",
+					"products",
+					"isDeliveryNote"
 				],
 				"type": "object",
 				"additionalProperties": false
@@ -767,7 +940,7 @@
 				]
 			}
 		},
-		"/proformaInvoice/save": {
+		"/invoice/proforma/save": {
 			"post": {
 				"operationId": "Save",
 				"responses": {
@@ -783,7 +956,7 @@
 					}
 				},
 				"tags": [
-					"ProformaInvoice"
+					"Invoice/Proforma"
 				],
 				"security": [],
 				"parameters": [],
@@ -799,7 +972,7 @@
 				}
 			}
 		},
-		"/proformaInvoice/getAll": {
+		"/invoice/proforma/getAll": {
 			"get": {
 				"operationId": "GetAll",
 				"responses": {
@@ -815,7 +988,7 @@
 					}
 				},
 				"tags": [
-					"ProformaInvoice"
+					"Invoice/Proforma"
 				],
 				"security": [],
 				"parameters": [
@@ -842,7 +1015,7 @@
 				]
 			}
 		},
-		"/proformaInvoice/get": {
+		"/invoice/proforma/get": {
 			"get": {
 				"operationId": "Get",
 				"responses": {
@@ -858,7 +1031,431 @@
 					}
 				},
 				"tags": [
-					"ProformaInvoice"
+					"Invoice/Proforma"
+				],
+				"security": [],
+				"parameters": [
+					{
+						"in": "query",
+						"name": "id",
+						"required": true,
+						"schema": {
+							"type": "string"
+						}
+					}
+				]
+			}
+		},
+		"/invoice/sale/save": {
+			"post": {
+				"operationId": "Save",
+				"responses": {
+					"200": {
+						"description": "Ok",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/Response"
+								}
+							}
+						}
+					}
+				},
+				"tags": [
+					"Invoice/Sale"
+				],
+				"security": [],
+				"parameters": [],
+				"requestBody": {
+					"required": true,
+					"content": {
+						"application/json": {
+							"schema": {
+								"$ref": "#/components/schemas/saleInvoice"
+							}
+						}
+					}
+				}
+			}
+		},
+		"/invoice/sale/getAll": {
+			"get": {
+				"operationId": "GetAll",
+				"responses": {
+					"200": {
+						"description": "Ok",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/Response"
+								}
+							}
+						}
+					}
+				},
+				"tags": [
+					"Invoice/Sale"
+				],
+				"security": [],
+				"parameters": [
+					{
+						"in": "query",
+						"name": "pageNumber",
+						"required": false,
+						"schema": {
+							"default": 1,
+							"format": "double",
+							"type": "number"
+						}
+					},
+					{
+						"in": "query",
+						"name": "pageSize",
+						"required": false,
+						"schema": {
+							"default": 20,
+							"format": "double",
+							"type": "number"
+						}
+					}
+				]
+			}
+		},
+		"/invoice/sale/get": {
+			"get": {
+				"operationId": "Get",
+				"responses": {
+					"200": {
+						"description": "Ok",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/Response"
+								}
+							}
+						}
+					}
+				},
+				"tags": [
+					"Invoice/Sale"
+				],
+				"security": [],
+				"parameters": [
+					{
+						"in": "query",
+						"name": "id",
+						"required": true,
+						"schema": {
+							"type": "string"
+						}
+					}
+				]
+			}
+		},
+		"/invoice/purchase/save": {
+			"post": {
+				"operationId": "Save",
+				"responses": {
+					"200": {
+						"description": "Ok",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/Response"
+								}
+							}
+						}
+					}
+				},
+				"tags": [
+					"Invoice/Purchase"
+				],
+				"security": [],
+				"parameters": [],
+				"requestBody": {
+					"required": true,
+					"content": {
+						"application/json": {
+							"schema": {
+								"$ref": "#/components/schemas/IPurchaseInvoice"
+							}
+						}
+					}
+				}
+			}
+		},
+		"/invoice/purchase/getAll": {
+			"get": {
+				"operationId": "GetAll",
+				"responses": {
+					"200": {
+						"description": "Ok",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/Response"
+								}
+							}
+						}
+					}
+				},
+				"tags": [
+					"Invoice/Purchase"
+				],
+				"security": [],
+				"parameters": [
+					{
+						"in": "query",
+						"name": "pageNumber",
+						"required": false,
+						"schema": {
+							"default": 1,
+							"format": "double",
+							"type": "number"
+						}
+					},
+					{
+						"in": "query",
+						"name": "pageSize",
+						"required": false,
+						"schema": {
+							"default": 20,
+							"format": "double",
+							"type": "number"
+						}
+					}
+				]
+			}
+		},
+		"/invoice/purchase/get": {
+			"get": {
+				"operationId": "Get",
+				"responses": {
+					"200": {
+						"description": "Ok",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/Response"
+								}
+							}
+						}
+					}
+				},
+				"tags": [
+					"Invoice/Purchase"
+				],
+				"security": [],
+				"parameters": [
+					{
+						"in": "query",
+						"name": "id",
+						"required": true,
+						"schema": {
+							"type": "string"
+						}
+					}
+				]
+			}
+		},
+		"/receipt/save": {
+			"post": {
+				"operationId": "Save",
+				"responses": {
+					"200": {
+						"description": "Ok",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/Response"
+								}
+							}
+						}
+					}
+				},
+				"tags": [
+					"Receipt"
+				],
+				"security": [],
+				"parameters": [],
+				"requestBody": {
+					"required": true,
+					"content": {
+						"application/json": {
+							"schema": {
+								"$ref": "#/components/schemas/IReceipt"
+							}
+						}
+					}
+				}
+			}
+		},
+		"/receipt/getAll": {
+			"get": {
+				"operationId": "GetAll",
+				"responses": {
+					"200": {
+						"description": "Ok",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/Response"
+								}
+							}
+						}
+					}
+				},
+				"tags": [
+					"Receipt"
+				],
+				"security": [],
+				"parameters": [
+					{
+						"in": "query",
+						"name": "pageNumber",
+						"required": false,
+						"schema": {
+							"default": 1,
+							"format": "double",
+							"type": "number"
+						}
+					},
+					{
+						"in": "query",
+						"name": "pageSize",
+						"required": false,
+						"schema": {
+							"default": 20,
+							"format": "double",
+							"type": "number"
+						}
+					}
+				]
+			}
+		},
+		"/receipt/get": {
+			"get": {
+				"operationId": "Get",
+				"responses": {
+					"200": {
+						"description": "Ok",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/Response"
+								}
+							}
+						}
+					}
+				},
+				"tags": [
+					"Receipt"
+				],
+				"security": [],
+				"parameters": [
+					{
+						"in": "query",
+						"name": "id",
+						"required": true,
+						"schema": {
+							"type": "string"
+						}
+					}
+				]
+			}
+		},
+		"/notes/save": {
+			"post": {
+				"operationId": "Save",
+				"responses": {
+					"200": {
+						"description": "Ok",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/Response"
+								}
+							}
+						}
+					}
+				},
+				"tags": [
+					"Notes"
+				],
+				"security": [],
+				"parameters": [],
+				"requestBody": {
+					"required": true,
+					"content": {
+						"application/json": {
+							"schema": {
+								"$ref": "#/components/schemas/INotes"
+							}
+						}
+					}
+				}
+			}
+		},
+		"/notes/getAll": {
+			"get": {
+				"operationId": "GetAll",
+				"responses": {
+					"200": {
+						"description": "Ok",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/Response"
+								}
+							}
+						}
+					}
+				},
+				"tags": [
+					"Notes"
+				],
+				"security": [],
+				"parameters": [
+					{
+						"in": "query",
+						"name": "pageNumber",
+						"required": false,
+						"schema": {
+							"default": 1,
+							"format": "double",
+							"type": "number"
+						}
+					},
+					{
+						"in": "query",
+						"name": "pageSize",
+						"required": false,
+						"schema": {
+							"default": 20,
+							"format": "double",
+							"type": "number"
+						}
+					}
+				]
+			}
+		},
+		"/notes/get": {
+			"get": {
+				"operationId": "Get",
+				"responses": {
+					"200": {
+						"description": "Ok",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/Response"
+								}
+							}
+						}
+					}
+				},
+				"tags": [
+					"Notes"
 				],
 				"security": [],
 				"parameters": [

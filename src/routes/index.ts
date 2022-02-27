@@ -4,7 +4,13 @@ import PartyController from '../controllers/party';
 import ProductController from '../controllers/product';
 
 import OrderRequestController from '../controllers/OrderRequest';
-import InvoiceController from '../controllers/proformaInvoices';
+import ProformaController from '../controllers/proformaInvoices';
+import SaleController from '../controllers/saleInvoice';
+import PurchaseController from '../controllers/purchaseInvoice';
+import ReceiptController from '../controllers/receipt';
+import NotesController from '../controllers/notes';
+
+
 
 
 
@@ -15,13 +21,22 @@ const cateoryRoute = require('./category');
 const productRoute = require('./product');
 const orderRequestRoute = require('./orderRequest');
 const invoiceRoute = require('./invoices');
+const notesRoute = require('./notes');
+const receiptRoute = require('./receipt');
+
+for (const property in notesRoute) {
+  Route.use('/notes', notesRoute[property]);
+}
+for (const property in receiptRoute) {
+  Route.use('/receipt', receiptRoute[property]);
+}
 
 
 for (const property in partyRoute) {
   Route.use('/party', partyRoute[property]);
 }
 for (const property in invoiceRoute) {
-  Route.use('/proformaInvoice', invoiceRoute[property]);
+  Route.use('/invoice', invoiceRoute[property]);
 }
 for (const property in cateoryRoute) {
   Route.use('/category', cateoryRoute[property]);

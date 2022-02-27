@@ -1,4 +1,6 @@
 module.exports = {
-    party: require('./proformaInvoice')
+    proforma: require('./proformaInvoice'),
+    sale: require('./saleInvoice'),
+    purchase: require('./purchaseInvoice')
   };
   

@@ -1,24 +1,21 @@
 import { Route, Tags, Post, Get, Controller, Body, Query, Security } from "tsoa";
 import { Response } from '../models/interfaces';
-import InvoiceModel from '../models/proformaInvoice';
+import NoteModel from '../models/notes';
 import { getAll, upsert } from "../helpers/db";
-import { getOtp } from '../helpers/utility'
 import { Request } from "express";
 
-interface invoiceRequest {
-    billedFrom: string,
-    billedTo: string,
-    items: {
-        productId: string,
-        quantity: number,
-        rate: number,
-        discount: number
-    }[]
+interface IReceipt {
+    receiptDate: string,
+    fromParty: string,
+    toParty: string,
+    amount: number,
+    refNo: string,
+    isPayment: boolean,
     id?: string
 }
 
-@Tags('Invoice/Proforma')
-@Route("invoice/proforma")
+@Tags('Receipt')
+@Route("receipt")
 export default class PartyController extends Controller {
     request: Request;
 
@@ -29,12 +26,24 @@ export default class PartyController extends Controller {
 
     // @Security('Bearer')
     @Post("/save")
-    public async save(@Body() request: invoiceRequest): Promise<Response> {
+    public async save(@Body() request: IReceipt): Promise<Response> {
         try {
-            const { billedFrom, items, billedTo, id } = request;
-            // generate order number
-            const orderNo = getOtp(100000, 10000);
-            const saveResponse = await upsert(InvoiceModel, { billedFrom, items, billedTo, ...(id ? {orderNo} : null) }, id);
+            const {
+                receiptDate,
+                fromParty,
+                toParty,
+                amount,
+                refNo,
+                isPayment,
+                id } = request;
+            const saveResponse = await upsert(NoteModel, {
+                receiptDate,
+                fromParty,
+                toParty,
+                amount,
+                refNo,
+                isPayment,
+            }, id);
             return {
                 data: saveResponse,
                 error: '',
@@ -58,7 +67,7 @@ export default class PartyController extends Controller {
     @Get("/getAll")
     public async getAll(@Query('pageNumber') pageNumber: number = 1, @Query() pageSize: number = 20): Promise<Response> {
         try {
-            const getAllResponse = await getAll(InvoiceModel, {}, pageNumber, pageSize);
+            const getAllResponse = await getAll(NoteModel, {}, pageNumber, pageSize);
             return {
                 data: getAllResponse,
                 error: '',
@@ -82,7 +91,7 @@ export default class PartyController extends Controller {
     @Get("/get")
     public async get(@Query() id: string): Promise<Response> {
         try {
-            const getResponse = await InvoiceModel.findOne({ _id: id });
+            const getResponse = await NoteModel.findOne({ _id: id });
             return {
                 data: getResponse,
                 error: '',
