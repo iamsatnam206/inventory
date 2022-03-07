@@ -1,6 +1,6 @@
 import { Route, Tags, Post, Get, Controller, Body, Query, Security } from "tsoa";
 import { Response } from '../models/interfaces';
-import NoteModel from '../models/notes';
+import ReceiptModel from '../models/receipt';
 import { getAll, upsert } from "../helpers/db";
 import { Request } from "express";
 
@@ -36,7 +36,7 @@ export default class PartyController extends Controller {
                 refNo,
                 isPayment,
                 id } = request;
-            const saveResponse = await upsert(NoteModel, {
+            const saveResponse = await upsert(ReceiptModel, {
                 receiptDate,
                 fromParty,
                 toParty,
@@ -67,7 +67,7 @@ export default class PartyController extends Controller {
     @Get("/getAll")
     public async getAll(@Query('pageNumber') pageNumber: number = 1, @Query() pageSize: number = 20): Promise<Response> {
         try {
-            const getAllResponse = await getAll(NoteModel, {}, pageNumber, pageSize);
+            const getAllResponse = await getAll(ReceiptModel, {}, pageNumber, pageSize);
             return {
                 data: getAllResponse,
                 error: '',
@@ -91,7 +91,7 @@ export default class PartyController extends Controller {
     @Get("/get")
     public async get(@Query() id: string): Promise<Response> {
         try {
-            const getResponse = await NoteModel.findOne({ _id: id });
+            const getResponse = await ReceiptModel.findOne({ _id: id });
             return {
                 data: getResponse,
                 error: '',

@@ -31,10 +31,10 @@ export default class PartyController extends Controller {
     @Post("/save")
     public async save(@Body() request: invoiceRequest): Promise<Response> {
         try {
-            const { billedFrom, items, billedTo, id } = request;
+            const { billedFrom, items, billedTo, id } = request; 
             // generate order number
             const orderNo = getOtp(100000, 10000);
-            const saveResponse = await upsert(InvoiceModel, { billedFrom, items, billedTo, ...(id ? {orderNo} : null) }, id);
+            const saveResponse = await upsert(InvoiceModel, { userId: this.request.body.user.id, billedFrom, items, billedTo, ...(!id ? {orderNo} : null) }, id);
             return {
                 data: saveResponse,
                 error: '',
