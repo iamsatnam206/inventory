@@ -45,4 +45,36 @@ Route.get('/sale/get', async (req: Request, res: Response) => {
 //     return res.send(respsone)
 // });
 
+Route.post('/sale/serialNumberEntry', async (req: Request, res: Response) => {
+    const body = req.body;
+    const { saleInvoiceId,
+        productId,
+        serialNumber } = body;
+    const controller = new SaleController(req);
+    const respsone = await controller.serialNumberEntry({
+        saleInvoiceId,
+        productId,
+        serialNumber
+    });
+    return res.send(respsone)
+});
+Route.post('/sale/confirmInvoice', async (req: Request, res: Response) => {
+    const body = req.body;
+    const { saleInvoiceId } = body;
+    const controller = new SaleController(req);
+    const respsone = await controller.confirmInvoice({
+        saleInvoiceId
+    });
+    return res.send(respsone)
+});
+Route.post('/sale/approveInvoice', async (req: Request, res: Response) => {
+    const body = req.body;
+    const { saleInvoiceId } = body;
+    const controller = new SaleController(req);
+    const respsone = await controller.approveInvoice({
+        saleInvoiceId
+    });
+    return res.send(respsone)
+});
+
 module.exports = Route;

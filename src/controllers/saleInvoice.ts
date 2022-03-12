@@ -1,7 +1,7 @@
 import { Route, Tags, Post, Get, Controller, Body, Query, Security } from "tsoa";
 import { Response } from '../models/interfaces';
 import SaleInvoice from '../models/saleInvoice';
-import { getAll, upsert } from "../helpers/db";
+import { getAll, getById, upsert } from "../helpers/db";
 import { Request } from "express";
 
 interface saleInvoice {
@@ -17,6 +17,11 @@ interface saleInvoice {
         discount: number
     }
     id?: string
+}
+interface saleInvoiceSerial {
+    saleInvoiceId: string,
+    productId: string,
+    serialNumber: string
 }
 
 @Tags('Invoice/Sale')
@@ -98,6 +103,108 @@ export default class PartyController extends Controller {
             const getResponse = await SaleInvoice.findOne({ _id: id });
             return {
                 data: getResponse,
+                error: '',
+                message: 'Success',
+                status: 200
+            }
+        }
+        catch (err: any) {
+            console.log(err);
+
+            return {
+                data: null,
+                error: err.message ? err.message : err,
+                message: '',
+                status: 400
+            }
+        }
+    }
+    @Post("/serialNumberEntry")
+    public async serialNumberEntry(@Body() request: saleInvoiceSerial): Promise<Response> {
+        try {
+            const { saleInvoiceId,
+                productId,
+                serialNumber } = request;
+            const theOne = await getById(SaleInvoice, saleInvoiceId);
+            if(!theOne) {
+                throw new Error('Invoice doesn\'t exists')
+            }
+            const products = theOne.products;
+            const oneProduct = products.find((val: {_id: string}) => val._id === productId);
+            if(!oneProduct) {
+                throw new Error('No Such Product');
+            }
+            oneProduct.serialNumber = serialNumber;
+            // save now
+            const saveResponse = await upsert(SaleInvoice, theOne, saleInvoiceId);
+            return {
+                data: saveResponse,
+                error: '',
+                message: 'Success',
+                status: 200
+            }
+        }
+        catch (err: any) {
+            console.log(err);
+
+            return {
+                data: null,
+                error: err.message ? err.message : err,
+                message: '',
+                status: 400
+            }
+        }
+    }
+
+    @Post("/confirmInvoice")
+    public async confirmInvoice(@Body() request: {saleInvoiceId: string}): Promise<Response> {
+        try {
+            const { saleInvoiceId } = request;
+            const theOne = await getById(SaleInvoice, saleInvoiceId);
+            if(!theOne) {
+                throw new Error('Invoice doesn\'t exists')
+            }
+            const products = theOne.products;
+            const isEmpty = products.some((val: {_id: string, serialNumber: string}) => val.serialNumber === '');
+            if(isEmpty) {
+                throw new Error('Missing serial numbers on some products');
+            }
+            theOne.status = 'CONFIRM'
+            // save now
+            const saveResponse = await upsert(SaleInvoice, theOne, saleInvoiceId);
+            return {
+                data: saveResponse,
+                error: '',
+                message: 'Success',
+                status: 200
+            }
+        }
+        catch (err: any) {
+            console.log(err);
+
+            return {
+                data: null,
+                error: err.message ? err.message : err,
+                message: '',
+                status: 400
+            }
+        }
+    }
+    @Post("/approveInvoice")
+    public async approveInvoice(@Body() request: {saleInvoiceId: string}): Promise<Response> {
+        try {
+            const { saleInvoiceId } = request;
+            const theOne = await getById(SaleInvoice, saleInvoiceId);
+            if(!theOne) {
+                throw new Error('Invoice doesn\'t exists')
+            }
+            if(theOne.status !== 'CONFIRM') {
+                throw new Error('Order not confirmed');
+            }
+            // save now
+            const saveResponse = await upsert(SaleInvoice, {...theOne, status: 'APPROVED'}, saleInvoiceId);
+            return {
+                data: saveResponse,
                 error: '',
                 message: 'Success',
                 status: 200

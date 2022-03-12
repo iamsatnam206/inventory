@@ -4,7 +4,8 @@ const orderItemSchema = new Schema({
     productId: {type: Schema.Types.ObjectId, required: true},
     quantity: {type: Number, default: 0, required: true},
     rate: {type: Number, required: true},
-    discount: {type: Number, required: true, min: 0}
+    discount: {type: Number, required: true, min: 0},
+    serialNumber: {type: String, default: ''}
 })
 
 const name = new Schema(
@@ -15,7 +16,8 @@ const name = new Schema(
         // invoiceNo: {type: String, required: true},
         invoiceDate: {type: Date, required: true},
         dispatchThrough: {type: String, required: true},
-        products: {type: [orderItemSchema], default: [], required: true}
+        products: {type: [orderItemSchema], default: [], required: true},
+        status: {type: String, enum: ['PENDING', 'APPROVED', 'CONFIRM'], default: 'PENDING'}
     },
     { versionKey: false, timestamps: true }
 );
