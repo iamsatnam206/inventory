@@ -1,5 +1,12 @@
 import { Schema, model } from 'mongoose';
 
+const orderItemSchema = new Schema({
+    productId: {type: Schema.Types.ObjectId, required: true},
+    quantity: {type: Number, default: 0, required: true},
+    rate: {type: Number, required: true},
+    discount: {type: Number, required: true, min: 0}
+})
+
 const name = new Schema(
     {
         billedFrom: { type: Schema.Types.ObjectId, required: true },
@@ -8,7 +15,7 @@ const name = new Schema(
         // invoiceNo: {type: String, required: true},
         invoiceDate: {type: Date, required: true},
         dispatchThrough: {type: String, required: true},
-        products: {type: [Schema.Types.ObjectId], default: [], required: true}
+        products: {type: [orderItemSchema], default: [], required: true}
     },
     { versionKey: false, timestamps: true }
 );

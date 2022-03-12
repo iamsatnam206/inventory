@@ -10,7 +10,12 @@ interface saleInvoice {
     shippingAddress: string,
     invoiceDate: string,
     dispatchThrough: string,
-    products: string[]
+    products: {
+        productId: string,
+        quantity: number,
+        rate: number,
+        discount: number
+    }
     id?: string
 }
 
@@ -35,12 +40,14 @@ export default class PartyController extends Controller {
                 dispatchThrough,
                 products,
                 id } = request;
-            const saveResponse = await upsert(SaleInvoice, { billedFrom,
+            const saveResponse = await upsert(SaleInvoice, {
+                billedFrom,
                 billedTo,
                 shippingAddress,
                 invoiceDate,
                 dispatchThrough,
-                products }, id);
+                products
+            }, id);
             return {
                 data: saveResponse,
                 error: '',
