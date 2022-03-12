@@ -125,6 +125,9 @@ export default class PartyController extends Controller {
             const { saleInvoiceId,
                 productId,
                 serialNumber } = request;
+                if(serialNumber.length < 5) {
+                    throw new Error('Serial number should be atleast 5 chars long')
+                }
             const theOne = await getById(SaleInvoice, saleInvoiceId);
             if(!theOne) {
                 throw new Error('Invoice doesn\'t exists')
