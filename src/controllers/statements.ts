@@ -54,7 +54,7 @@ export default class StatementController extends Controller {
         }
     }
 
-    @Get("/save")
+    @Post("/save")
     public async save(@Body() request: {quantityAdded: number, quantitySubtracted: number, productId: string, partyId: string}[]): Promise<Response> {
         try {
             // get the party
