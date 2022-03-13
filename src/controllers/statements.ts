@@ -23,16 +23,13 @@ export default class StatementController extends Controller {
             // check date validation
             if(!validateMongooseDate(startDate) || !validateMongooseDate(endDate)) {
                 throw new Error('Date should be in format YYYY-MM-DD')
-            } 
-            if(productId === '') {
-                throw new Error("Product Id is required");
             }
             const getAllRespsonse = await getAll(statement, {
                 createdAt: {
                     $gte: new Date(startDate),
                     $lte: new Date(endDate)
                 },
-                productId,
+                ...(productId ? {productId} : null),
             }, pageNumber, pageSize)
 
             return {
