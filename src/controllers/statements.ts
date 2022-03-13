@@ -55,10 +55,10 @@ export default class StatementController extends Controller {
     }
 
     @Post("/save")
-    public async save(@Body() request: {quantityAdded: number, quantitySubtracted: number, productId: string, partyId: string}[]): Promise<Response> {
+    public async save(@Body() request: {quantityAdded: number, quantitySubtracted: number, productId: string, fromParty: string, toParty: string}[]): Promise<Response> {
         try {
             // get the party
-            const partyDoc = await getById(party, request[0].partyId);
+            const partyDoc = await getById(party, request[0].fromParty);
             if(!partyDoc) {
                 throw new Error("Party doesn\'t exists");
             }

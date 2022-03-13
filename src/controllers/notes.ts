@@ -62,7 +62,7 @@ export default class PartyController extends Controller {
              const controller = new StatementController(this.request);
              controller.save(products.map((val: { productId: string, quantity: number }) => {
                  return {
-                     quantityAdded: isDeliveryNote ? 0 : val.quantity, quantitySubtracted: !isDeliveryNote ? 0 : val.quantity, productId: val.productId, partyId: saveResponse.toParty
+                     quantityAdded: isDeliveryNote ? 0 : val.quantity, quantitySubtracted: !isDeliveryNote ? 0 : val.quantity, productId: val.productId, fromParty: saveResponse.fromParty, toParty: saveResponse.toParty
                  }
              }))
             return {
