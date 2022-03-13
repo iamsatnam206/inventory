@@ -2,7 +2,9 @@ import { Route, Tags, Post, Get, Controller, Body, Query, Security } from "tsoa"
 import { Response } from '../models/interfaces';
 import NoteModel from '../models/notes';
 import { getAll, upsert } from "../helpers/db";
+import ProductsModel from '../models/products';
 import { Request } from "express";
+import StatementController from "./statements";
 
 interface INotes {
     fromParty: string,
@@ -44,6 +46,25 @@ export default class PartyController extends Controller {
                 products,
                 isDeliveryNote,
             }, id);
+
+             // make effect in products
+             const productEffect = await ProductsModel.bulkWrite([
+                products.map((val: { productId: string, quantity: number }) => {
+                    return {
+                        updateOne: {
+                            filter: { _id: val.productId },
+                            update: { $inc: { openingQuantity: isDeliveryNote ? -val.quantity : val.quantity } }
+                        }
+                    }
+                })
+            ])
+             // update the statement
+             const controller = new StatementController(this.request);
+             controller.save(products.map((val: { productId: string, quantity: number }) => {
+                 return {
+                     quantityAdded: isDeliveryNote ? 0 : val.quantity, quantitySubtracted: !isDeliveryNote ? 0 : val.quantity, productId: val.productId, partyId: saveResponse.toParty
+                 }
+             }))
             return {
                 data: saveResponse,
                 error: '',

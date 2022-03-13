@@ -9,6 +9,7 @@ import SaleController from '../controllers/saleInvoice';
 import PurchaseController from '../controllers/purchaseInvoice';
 import ReceiptController from '../controllers/receipt';
 import NotesController from '../controllers/notes';
+import StatementController from '../controllers/statements';
 
 
 
@@ -17,6 +18,7 @@ import NotesController from '../controllers/notes';
 const Route = express.Router();
 
 const partyRoute = require('./party');
+const statementRoute = require('./statements');
 const cateoryRoute = require('./category');
 const productRoute = require('./product');
 const orderRequestRoute = require('./orderRequest');
@@ -26,6 +28,9 @@ const receiptRoute = require('./receipt');
 
 for (const property in notesRoute) {
   Route.use('/notes', notesRoute[property]);
+}
+for (const property in statementRoute) {
+  Route.use('/statements', statementRoute[property]);
 }
 for (const property in receiptRoute) {
   Route.use('/receipt', receiptRoute[property]);

@@ -1,8 +1,12 @@
 import { Route, Tags, Post, Get, Controller, Body, Query, Security } from "tsoa";
 import { Response } from '../models/interfaces';
 import PurchaseInvoice from '../models/purchaseInvoice';
+import ProductsModel from '../models/products';
+
+
 import { getAll, upsert } from "../helpers/db";
 import { Request } from "express";
+import StatementController from "./statements";
 
 interface IPurchaseInvoice {
     billedFrom: string,
@@ -42,6 +46,25 @@ export default class PartyController extends Controller {
                 invoiceDate,
                 products
             }, id);
+            // make effect in products
+            const productEffect = await ProductsModel.bulkWrite([
+                products.map((val: { productId: string, quantity: number }) => {
+                    return {
+                        updateOne: {
+                            filter: { _id: val.productId },
+                            update: { $inc: { openingQuantity: val.quantity } }
+                        }
+                    }
+                })
+            ])
+
+            // update the statement
+            const controller = new StatementController(this.request);
+            controller.save(products.map((val: { productId: string, quantity: number }) => {
+                return {
+                    quantityAdded: val.quantity, quantitySubtracted: 0, productId: val.productId, partyId: saveResponse.billedTo
+                }
+            }))
             return {
                 data: saveResponse,
                 error: '',

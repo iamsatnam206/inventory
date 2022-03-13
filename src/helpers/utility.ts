@@ -1,4 +1,5 @@
 import bcrypt from 'bcryptjs';
+import moment from 'moment';
 
 module.exports.genHash = (stringValue: string) => {
     return new Promise((res, rej) => {
@@ -21,3 +22,7 @@ module.exports.verifyHash = (password: string, hash: string) => {
 export const getOtp = async (max: number, min: number) => {
     return Math.floor(Math.random() * (max - min)) + min
 };
+
+export const validateMongooseDate = (date: string) => {
+    return moment(date, 'YYYY-MM-DD', true).isValid()
+}
