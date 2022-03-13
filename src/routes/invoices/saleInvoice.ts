@@ -26,9 +26,9 @@ Route.post('/sale/save', async (req: Request, res: Response) => {
 });
 Route.get('/sale/getAll', async (req: Request, res: Response) => {
     const query = req.query;
-    const { pageNumber, pageSize } = query;
+    const { pageNumber, pageSize, status } = query;
     const controller = new SaleController(req);
-    const respsone = await controller.getAll(pageNumber ? +pageNumber : 1, pageSize ? +pageSize : 20);
+    const respsone = await controller.getAll(pageNumber ? +pageNumber : 1, pageSize ? +pageSize : 20, status as string);
     return res.send(respsone)
 });
 Route.get('/sale/get', async (req: Request, res: Response) => {
