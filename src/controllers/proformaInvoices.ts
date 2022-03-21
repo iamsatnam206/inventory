@@ -33,8 +33,8 @@ export default class PartyController extends Controller {
         try {
             const { billedFrom, items, billedTo, id } = request; 
             // generate order number
-            const orderNo = getOtp(100000, 10000);
-            const saveResponse = await upsert(InvoiceModel, { userId: this.request.body.user.id, billedFrom, items, billedTo, ...(!id ? {orderNo} : null) }, id);
+            const orderNo = await getOtp(100000, 10000);
+            const saveResponse = await upsert(InvoiceModel, { userId: '61e7d337f9c3b4cfad6ce42d', billedFrom, items, billedTo, ...(!id ? {orderNo} : null) }, id);
             return {
                 data: saveResponse,
                 error: '',

@@ -61,7 +61,7 @@ export default class StatementController extends Controller {
             }
             const invoiceNumber = partyDoc.name.slice(0, 3) + getOtp(100000, 10000);
             const saveResponse = await statement.bulkWrite([
-                request.map(val => {
+                ...request.map(val => {
                     return {
                         insertOne: {
                             ...val, invoiceNumber: invoiceNumber

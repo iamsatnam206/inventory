@@ -47,7 +47,7 @@ export default class PartyController extends Controller {
                 products
             }, id);
             // make effect in products
-            const productEffect = await ProductsModel.bulkWrite([
+            const productEffect = await ProductsModel.bulkWrite(
                 products.map((val: { productId: string, quantity: number }) => {
                     return {
                         updateOne: {
@@ -56,7 +56,7 @@ export default class PartyController extends Controller {
                         }
                     }
                 })
-            ])
+            )
 
             // update the statement
             const controller = new StatementController(this.request);

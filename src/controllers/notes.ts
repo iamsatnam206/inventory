@@ -49,7 +49,7 @@ export default class PartyController extends Controller {
 
              // make effect in products
              const productEffect = await ProductsModel.bulkWrite([
-                products.map((val: { productId: string, quantity: number }) => {
+                ...products.map((val: { productId: string, quantity: number }) => {
                     return {
                         updateOne: {
                             filter: { _id: val.productId },

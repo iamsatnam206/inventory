@@ -271,10 +271,30 @@
 						"type": "string"
 					},
 					"products": {
-						"items": {
-							"type": "string"
+						"properties": {
+							"discount": {
+								"type": "number",
+								"format": "double"
+							},
+							"rate": {
+								"type": "number",
+								"format": "double"
+							},
+							"quantity": {
+								"type": "number",
+								"format": "double"
+							},
+							"productId": {
+								"type": "string"
+							}
 						},
-						"type": "array"
+						"required": [
+							"discount",
+							"rate",
+							"quantity",
+							"productId"
+						],
+						"type": "object"
 					},
 					"id": {
 						"type": "string"
@@ -287,6 +307,26 @@
 					"invoiceDate",
 					"dispatchThrough",
 					"products"
+				],
+				"type": "object",
+				"additionalProperties": false
+			},
+			"saleInvoiceSerial": {
+				"properties": {
+					"saleInvoiceId": {
+						"type": "string"
+					},
+					"productId": {
+						"type": "string"
+					},
+					"serialNumber": {
+						"type": "string"
+					}
+				},
+				"required": [
+					"saleInvoiceId",
+					"productId",
+					"serialNumber"
 				],
 				"type": "object",
 				"additionalProperties": false
@@ -1046,6 +1086,134 @@
 				]
 			}
 		},
+		"/statements/getAll": {
+			"get": {
+				"operationId": "GetAll",
+				"responses": {
+					"200": {
+						"description": "Ok",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/Response"
+								}
+							}
+						}
+					}
+				},
+				"tags": [
+					"Statements"
+				],
+				"security": [],
+				"parameters": [
+					{
+						"in": "query",
+						"name": "productId",
+						"required": true,
+						"schema": {
+							"type": "string"
+						}
+					},
+					{
+						"in": "query",
+						"name": "startDate",
+						"required": true,
+						"schema": {
+							"type": "string"
+						}
+					},
+					{
+						"in": "query",
+						"name": "endDate",
+						"required": true,
+						"schema": {
+							"type": "string"
+						}
+					},
+					{
+						"in": "query",
+						"name": "pageNumber",
+						"required": false,
+						"schema": {
+							"default": 1,
+							"format": "double",
+							"type": "number"
+						}
+					},
+					{
+						"in": "query",
+						"name": "pageSize",
+						"required": false,
+						"schema": {
+							"default": 20,
+							"format": "double",
+							"type": "number"
+						}
+					}
+				]
+			}
+		},
+		"/statements/save": {
+			"post": {
+				"operationId": "Save",
+				"responses": {
+					"200": {
+						"description": "Ok",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/Response"
+								}
+							}
+						}
+					}
+				},
+				"tags": [
+					"Statements"
+				],
+				"security": [],
+				"parameters": [],
+				"requestBody": {
+					"required": true,
+					"content": {
+						"application/json": {
+							"schema": {
+								"items": {
+									"properties": {
+										"toParty": {
+											"type": "string"
+										},
+										"fromParty": {
+											"type": "string"
+										},
+										"productId": {
+											"type": "string"
+										},
+										"quantitySubtracted": {
+											"type": "number",
+											"format": "double"
+										},
+										"quantityAdded": {
+											"type": "number",
+											"format": "double"
+										}
+									},
+									"required": [
+										"toParty",
+										"fromParty",
+										"productId",
+										"quantitySubtracted",
+										"quantityAdded"
+									],
+									"type": "object"
+								},
+								"type": "array"
+							}
+						}
+					}
+				}
+			}
+		},
 		"/invoice/sale/save": {
 			"post": {
 				"operationId": "Save",
@@ -1117,6 +1285,14 @@
 							"format": "double",
 							"type": "number"
 						}
+					},
+					{
+						"in": "query",
+						"name": "status",
+						"required": true,
+						"schema": {
+							"type": "string"
+						}
 					}
 				]
 			}
@@ -1150,6 +1326,118 @@
 						}
 					}
 				]
+			}
+		},
+		"/invoice/sale/serialNumberEntry": {
+			"post": {
+				"operationId": "SerialNumberEntry",
+				"responses": {
+					"200": {
+						"description": "Ok",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/Response"
+								}
+							}
+						}
+					}
+				},
+				"tags": [
+					"Invoice/Sale"
+				],
+				"security": [],
+				"parameters": [],
+				"requestBody": {
+					"required": true,
+					"content": {
+						"application/json": {
+							"schema": {
+								"$ref": "#/components/schemas/saleInvoiceSerial"
+							}
+						}
+					}
+				}
+			}
+		},
+		"/invoice/sale/confirmInvoice": {
+			"post": {
+				"operationId": "ConfirmInvoice",
+				"responses": {
+					"200": {
+						"description": "Ok",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/Response"
+								}
+							}
+						}
+					}
+				},
+				"tags": [
+					"Invoice/Sale"
+				],
+				"security": [],
+				"parameters": [],
+				"requestBody": {
+					"required": true,
+					"content": {
+						"application/json": {
+							"schema": {
+								"properties": {
+									"saleInvoiceId": {
+										"type": "string"
+									}
+								},
+								"required": [
+									"saleInvoiceId"
+								],
+								"type": "object"
+							}
+						}
+					}
+				}
+			}
+		},
+		"/invoice/sale/approveInvoice": {
+			"post": {
+				"operationId": "ApproveInvoice",
+				"responses": {
+					"200": {
+						"description": "Ok",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/Response"
+								}
+							}
+						}
+					}
+				},
+				"tags": [
+					"Invoice/Sale"
+				],
+				"security": [],
+				"parameters": [],
+				"requestBody": {
+					"required": true,
+					"content": {
+						"application/json": {
+							"schema": {
+								"properties": {
+									"saleInvoiceId": {
+										"type": "string"
+									}
+								},
+								"required": [
+									"saleInvoiceId"
+								],
+								"type": "object"
+							}
+						}
+					}
+				}
 			}
 		},
 		"/invoice/purchase/save": {
