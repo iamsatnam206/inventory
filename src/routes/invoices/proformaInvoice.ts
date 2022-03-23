@@ -8,12 +8,16 @@ Route.post('/proforma/save', async (req: Request, res: Response) => {
     const { billedFrom,
         billedTo,
         items,
+        shippingAddress, 
+        totalAmount,
         id } = body;
     const controller = new InvoiceController(req);
     const respsone = await controller.save({
         billedFrom,
         billedTo,
         items,
+        shippingAddress, 
+        totalAmount,
         id
     });
     return res.send(respsone)

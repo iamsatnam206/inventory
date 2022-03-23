@@ -11,6 +11,8 @@ Route.post('/save', async (req: Request, res: Response) => {
         receiptDate,
         products,
         isDeliveryNote,
+        totalAmount,
+        shippingAddress,
         id
     } = body;
     const controller = new NotesController(req);
@@ -18,6 +20,8 @@ Route.post('/save', async (req: Request, res: Response) => {
         fromParty,
         toParty,
         receiptDate,
+        totalAmount,
+        shippingAddress,
         products,
         isDeliveryNote,
         id

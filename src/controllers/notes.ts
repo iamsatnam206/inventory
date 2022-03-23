@@ -15,7 +15,9 @@ interface INotes {
         quantity: number,
         prices: number,
     }[],
+    shippingAddress: string,
     isDeliveryNote: boolean,
+    totalAmount: number,
     id?: string
 }
 
@@ -37,14 +39,18 @@ export default class PartyController extends Controller {
                 toParty,
                 receiptDate,
                 products,
+                shippingAddress,
                 isDeliveryNote,
+                totalAmount,
                 id } = request;
             const saveResponse = await upsert(NoteModel, {
                 fromParty,
                 toParty,
                 receiptDate,
                 products,
+                shippingAddress,
                 isDeliveryNote,
+                totalAmount,
             }, id);
 
              // make effect in products

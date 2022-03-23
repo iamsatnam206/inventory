@@ -11,6 +11,7 @@ Route.post('/sale/save', async (req: Request, res: Response) => {
         invoiceDate,
         dispatchThrough,
         products,
+        totalAmount,
         id } = body;
     const controller = new SaleController(req);
     const respsone = await controller.save({
@@ -20,6 +21,7 @@ Route.post('/sale/save', async (req: Request, res: Response) => {
         invoiceDate,
         dispatchThrough,
         products,
+        totalAmount,
         id
     });
     return res.send(respsone)

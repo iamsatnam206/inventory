@@ -18,7 +18,8 @@ interface saleInvoice {
         quantity: number,
         rate: number,
         discount: number
-    }
+    },
+    totalAmount: number,
     id?: string
 }
 interface saleInvoiceSerial {
@@ -47,6 +48,7 @@ export default class PartyController extends Controller {
                 invoiceDate,
                 dispatchThrough,
                 products,
+                totalAmount,
                 id } = request;
             const saveResponse = await upsert(SaleInvoice, {
                 billedFrom,
@@ -54,7 +56,8 @@ export default class PartyController extends Controller {
                 shippingAddress,
                 invoiceDate,
                 dispatchThrough,
-                products
+                products,
+                totalAmount
             }, id);
             return {
                 data: saveResponse,

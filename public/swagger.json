@@ -241,6 +241,13 @@
 						},
 						"type": "array"
 					},
+					"shippingAddress": {
+						"type": "string"
+					},
+					"totalAmount": {
+						"type": "number",
+						"format": "double"
+					},
 					"id": {
 						"type": "string"
 					}
@@ -248,7 +255,9 @@
 				"required": [
 					"billedFrom",
 					"billedTo",
-					"items"
+					"items",
+					"shippingAddress",
+					"totalAmount"
 				],
 				"type": "object",
 				"additionalProperties": false
@@ -296,6 +305,10 @@
 						],
 						"type": "object"
 					},
+					"totalAmount": {
+						"type": "number",
+						"format": "double"
+					},
 					"id": {
 						"type": "string"
 					}
@@ -306,7 +319,8 @@
 					"shippingAddress",
 					"invoiceDate",
 					"dispatchThrough",
-					"products"
+					"products",
+					"totalAmount"
 				],
 				"type": "object",
 				"additionalProperties": false
@@ -450,8 +464,15 @@
 						},
 						"type": "array"
 					},
+					"shippingAddress": {
+						"type": "string"
+					},
 					"isDeliveryNote": {
 						"type": "boolean"
+					},
+					"totalAmount": {
+						"type": "number",
+						"format": "double"
 					},
 					"id": {
 						"type": "string"
@@ -462,7 +483,9 @@
 					"toParty",
 					"receiptDate",
 					"products",
-					"isDeliveryNote"
+					"shippingAddress",
+					"isDeliveryNote",
+					"totalAmount"
 				],
 				"type": "object",
 				"additionalProperties": false
