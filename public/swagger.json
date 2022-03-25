@@ -280,30 +280,33 @@
 						"type": "string"
 					},
 					"products": {
-						"properties": {
-							"discount": {
-								"type": "number",
-								"format": "double"
+						"items": {
+							"properties": {
+								"discount": {
+									"type": "number",
+									"format": "double"
+								},
+								"rate": {
+									"type": "number",
+									"format": "double"
+								},
+								"quantity": {
+									"type": "number",
+									"format": "double"
+								},
+								"productId": {
+									"type": "string"
+								}
 							},
-							"rate": {
-								"type": "number",
-								"format": "double"
-							},
-							"quantity": {
-								"type": "number",
-								"format": "double"
-							},
-							"productId": {
-								"type": "string"
-							}
+							"required": [
+								"discount",
+								"rate",
+								"quantity",
+								"productId"
+							],
+							"type": "object"
 						},
-						"required": [
-							"discount",
-							"rate",
-							"quantity",
-							"productId"
-						],
-						"type": "object"
+						"type": "array"
 					},
 					"totalAmount": {
 						"type": "number",
@@ -1312,8 +1315,9 @@
 					{
 						"in": "query",
 						"name": "status",
-						"required": true,
+						"required": false,
 						"schema": {
+							"default": "",
 							"type": "string"
 						}
 					}

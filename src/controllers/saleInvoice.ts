@@ -18,7 +18,7 @@ interface saleInvoice {
         quantity: number,
         rate: number,
         discount: number
-    },
+    }[],
     totalAmount: number,
     id?: string
 }
@@ -80,16 +80,88 @@ export default class PartyController extends Controller {
 
     // @Security('Bearer')
     @Get("/getAll")
-    public async getAll(@Query('pageNumber') pageNumber: number = 1, @Query() pageSize: number = 20, @Query() status: string): Promise<Response> {
+    public async getAll(@Query('pageNumber') pageNumber: number = 1, @Query() pageSize: number = 20, @Query() status: string = ''): Promise<Response> {
         try {
             if (status && (status !== 'PENDING' && status !== 'APPROVED' && status !== 'CONFIRM')) {
                 throw new Error('Status is incorrect!');
             }
-            const getAllResponse = await getAll(SaleInvoice, {
-                ...(status ? { status } : null)
-            }, pageNumber, pageSize);
+            // const getAllResponse = await getAll(SaleInvoice, {
+            //     ...(status ? { status } : null)
+            // }, pageNumber, pageSize);
+            const getAllResponse = await SaleInvoice.aggregate([
+                {
+                    $match: { ...(status ? { status } : null) }
+                },
+                {
+                    $facet: {
+                        totalCount: [
+                            { $count: 'totalItems' }
+                        ],
+                        items: [
+                            {
+                                $skip: (pageNumber - 1) * pageSize
+                            },
+                            {
+                                $limit: pageSize
+                            },
+                            {
+                                $lookup: {
+                                    from: 'parties',
+                                    localField: 'billedFrom',
+                                    foreignField: '_id',
+                                    as: 'billedFrom'
+                                }
+                            },
+                            {
+                                $lookup: {
+                                    from: 'parties',
+                                    localField: 'billedTo',
+                                    foreignField: '_id',
+                                    as: 'billedTo'
+                                }
+                            },
+                            {
+                                $lookup: {
+                                    from: 'products',
+                                    localField: 'products.productId',
+                                    foreignField: '_id',
+                                    as: 'product'
+                                }
+                            },
+                            {
+                                $addFields: {
+                                    billedFrom: { $arrayElemAt: ["$billedFrom", 0] },
+                                    billedTo: { $arrayElemAt: ["$billedTo", 0] },
+                                    'products.productData': {$first: '$product'}
+                                }
+                            },
+                            {
+                                $project: {'product': 0}
+                            }
+                            // {
+                            //     $replaceRoot: { newRoot: { $mergeObjects: [{ $arrayElemAt: ["$brandDoc", 0] }, "$$ROOT"] } }
+                            // },
+
+                        ]
+                    },
+                },
+                {
+                    $replaceWith: {
+                        totalItems: {
+                            $sum: "$totalCount.totalItems"
+                        }, items: "$items"
+                    }
+                },
+                {
+                    $addFields: {
+                        pageNumber: pageNumber,
+                        pageSize: pageSize
+                    }
+                },
+
+            ]).exec()
             return {
-                data: getAllResponse,
+                data: getAllResponse[0],
                 error: '',
                 message: 'Success',
                 status: 200

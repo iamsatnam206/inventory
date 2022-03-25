@@ -4,7 +4,7 @@
   "description": "",
   "main": "build/index.js",
   "scripts": {
-    "start": "tsc && node build/index.js",
+    "start": "npm run build && pm2 start build/index.js",
     "predev": "npm run swagger",
     "prebuild": "npm run swagger",
     "build": "tsc",
