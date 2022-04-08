@@ -10,8 +10,8 @@ interface product {
     hsnCode: number,
     taxSlab: number,
     company: string,
-    hsnCodeDescription: string, 
-    units: string, 
+    hsnCodeDescription: string,
+    units: string,
     openingQuantity: number,
     id?: string
 }
@@ -33,7 +33,7 @@ export default class PartyController extends Controller {
         }
         catch (err: any) {
             console.log(err);
-            
+
             return {
                 data: null,
                 error: err.message ? err.message : err,
@@ -43,12 +43,13 @@ export default class PartyController extends Controller {
         }
     }
     @Get("/getAll")
-    public async getAll(@Query('pageNumber') pageNumber: number = 1, @Query() pageSize: number = 20, @Query() itemCategory: string = ''): Promise<Response> {
+    public async getAll(@Query() filter = '', @Query('pageNumber') pageNumber: number = 1, @Query() pageSize: number = 20, @Query() itemCategory: string = ''): Promise<Response> {
         try {
             const getAllResponse = await getAll(ProductModel, {
-                ...(itemCategory ? {itemCategory} : null)
+                ...(filter ? { $text: { $search: filter, $caseSensitive: false } } : null),
+                ...(itemCategory ? { itemCategory } : null)
             }, pageNumber, pageSize);
-            return { 
+            return {
                 data: getAllResponse,
                 error: '',
                 message: 'Success',
@@ -57,7 +58,7 @@ export default class PartyController extends Controller {
         }
         catch (err: any) {
             console.log(err);
-            
+
             return {
                 data: null,
                 error: err.message ? err.message : err,
@@ -70,8 +71,8 @@ export default class PartyController extends Controller {
     public async get(@Query() id: string): Promise<Response> {
         try {
             console.log('id here', id);
-            
-            const getResponse = await ProductModel.findOne({_id: id});
+
+            const getResponse = await ProductModel.findOne({ _id: id });
             return {
                 data: getResponse,
                 error: '',
@@ -81,7 +82,7 @@ export default class PartyController extends Controller {
         }
         catch (err: any) {
             console.log(err);
-            
+
             return {
                 data: null,
                 error: err.message ? err.message : err,

@@ -6,4 +6,7 @@ const name = new Schema(
     },
     { versionKey: false, timestamps: true }
 );
+name.index({
+    name: 'text'
+})
 export default model("category", name);

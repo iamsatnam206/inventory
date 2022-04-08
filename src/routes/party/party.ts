@@ -12,7 +12,10 @@ Route.post('/save', async (req: Request, res: Response, next: NextFunction) => {
         pinCode,
         contactPerson,
         userName,
-        password, state, openingBalance, id, isRetailer } = body;
+        password, state, openingBalance, id, isRetailer,
+        companyPan, bankName, accountNumber, branch
+    
+    } = body;
     const controller = new PartyController();
     if (id) {
         await OtherAuth(req, res, () => {
@@ -38,7 +41,7 @@ Route.post('/save', async (req: Request, res: Response, next: NextFunction) => {
         userName: userName.toLowerCase(),
         password,
         id,
-        isRetailer
+        isRetailer, companyPan, bankName, accountNumber, branch
     });
     return res.send(respsone)
 });
@@ -56,9 +59,9 @@ Route.post('/login', async (req: Request, res: Response) => {
 });
 
 Route.get('/getAll', async (req: Request, res: Response) => {
-    const { pageNumber, pageSize } = req.query;
+    const { pageNumber, pageSize, filter } = req.query;
     const controller = new PartyController();
-    const respsone = await controller.getAll(pageNumber ? +pageNumber : 1, pageSize ? +pageSize : 20);
+    const respsone = await controller.getAll(filter as string, pageNumber ? +pageNumber : 1, pageSize ? +pageSize : 20);
     return res.send(respsone)
 });
 Route.get('/get', async (req: Request, res: Response) => {

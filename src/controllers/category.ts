@@ -1,6 +1,8 @@
-import { Route, Tags, Post, Get, Controller, Body, Query } from "tsoa";
+import { Route, Tags, Post, Get, Controller, Body, Query, Delete } from "tsoa";
 import { Response } from '../models/interfaces';
 import CategoryModel from '../models/cateory';
+import ProductModel from '../models/products';
+
 import { getAll, upsert } from "../helpers/db";
 
 interface category {
@@ -35,9 +37,11 @@ export default class PartyController extends Controller {
         }
     }
     @Get("/getAll")
-    public async getAll(@Query('pageNumber') pageNumber: number = 1, @Query() pageSize: number = 20): Promise<Response> {
+    public async getAll(@Query() filter = '', @Query('pageNumber') pageNumber: number = 1, @Query() pageSize: number = 20): Promise<Response> {
         try {
-            const getAllResponse = await getAll(CategoryModel, {}, pageNumber, pageSize);
+            const getAllResponse = await getAll(CategoryModel, {
+                ...(filter ? { $text: { $search: filter, $caseSensitive: false } } : null)
+            }, pageNumber, pageSize);
             return {
                 data: getAllResponse,
                 error: '',
@@ -72,6 +76,33 @@ export default class PartyController extends Controller {
         catch (err: any) {
             console.log(err);
             
+            return {
+                data: null,
+                error: err.message ? err.message : err,
+                message: '',
+                status: 400
+            }
+        }
+    }
+
+
+    @Delete("/delete")
+    public async delete(@Query() id: string): Promise<Response> {
+        try {
+            const getResponse = await ProductModel.findOne({itemCategory: id});
+            if(!getResponse) {
+                const delResp = await CategoryModel.deleteOne({_id: id});
+                return {
+                    data: delResp,
+                    error: '',
+                    message: 'Success',
+                    status: 200
+                }
+            } else {
+                throw new Error('Product exists!')
+            }
+        }
+        catch (err: any) {
             return {
                 data: null,
                 error: err.message ? err.message : err,

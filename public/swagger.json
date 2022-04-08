@@ -82,6 +82,18 @@
 					"isRetailer": {
 						"type": "boolean"
 					},
+					"companyPan": {
+						"type": "string"
+					},
+					"bankName": {
+						"type": "string"
+					},
+					"accountNumber": {
+						"type": "string"
+					},
+					"branch": {
+						"type": "string"
+					},
 					"id": {
 						"type": "string"
 					}
@@ -97,7 +109,11 @@
 					"password",
 					"state",
 					"openingBalance",
-					"isRetailer"
+					"isRetailer",
+					"companyPan",
+					"bankName",
+					"accountNumber",
+					"branch"
 				],
 				"type": "object",
 				"additionalProperties": false
@@ -568,6 +584,15 @@
 				"parameters": [
 					{
 						"in": "query",
+						"name": "filter",
+						"required": false,
+						"schema": {
+							"default": "",
+							"type": "string"
+						}
+					},
+					{
+						"in": "query",
 						"name": "pageNumber",
 						"required": false,
 						"schema": {
@@ -592,6 +617,37 @@
 		"/category/get": {
 			"get": {
 				"operationId": "Get",
+				"responses": {
+					"200": {
+						"description": "Ok",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/Response"
+								}
+							}
+						}
+					}
+				},
+				"tags": [
+					"Category"
+				],
+				"security": [],
+				"parameters": [
+					{
+						"in": "query",
+						"name": "id",
+						"required": true,
+						"schema": {
+							"type": "string"
+						}
+					}
+				]
+			}
+		},
+		"/category/delete": {
+			"delete": {
+				"operationId": "Delete",
 				"responses": {
 					"200": {
 						"description": "Ok",
@@ -714,6 +770,15 @@
 				"parameters": [
 					{
 						"in": "query",
+						"name": "filter",
+						"required": false,
+						"schema": {
+							"default": "",
+							"type": "string"
+						}
+					},
+					{
+						"in": "query",
 						"name": "pageNumber",
 						"required": false,
 						"schema": {
@@ -822,6 +887,15 @@
 				],
 				"security": [],
 				"parameters": [
+					{
+						"in": "query",
+						"name": "filter",
+						"required": false,
+						"schema": {
+							"default": "",
+							"type": "string"
+						}
+					},
 					{
 						"in": "query",
 						"name": "pageNumber",

@@ -18,6 +18,7 @@ interface partySave {
     state: string,
     openingBalance: number,
     isRetailer: boolean,
+    companyPan: string, bankName: string, accountNumber: string, branch: string,
     id?: string
 }
 interface partyLogin {
@@ -97,9 +98,11 @@ export default class PartyController extends Controller {
     }
     @Get("/getAll")
     @Security('Bearer')
-    public async getAll(@Query('pageNumber') pageNumber: number = 1, @Query() pageSize: number = 20): Promise<Response> {
+    public async getAll(@Query() filter = '', @Query('pageNumber') pageNumber: number = 1, @Query() pageSize: number = 20): Promise<Response> {
         try {
-            const getAllResponse = await getAll(PartyModel, {}, pageNumber, pageSize);
+            const getAllResponse = await getAll(PartyModel, {
+                ...(filter ? { $text: { $search: filter, $caseSensitive: false } } : null)
+            }, pageNumber, pageSize);
 
             return {
                 data: getAllResponse,
