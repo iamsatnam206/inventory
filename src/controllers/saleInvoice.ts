@@ -215,8 +215,10 @@ export default class PartyController extends Controller {
             if (!theOne) {
                 throw new Error('Invoice doesn\'t exists')
             }
-            const products = theOne.products;
-            const oneProduct = products.find((val: { _id: string }) => val._id === productId);
+            const products = theOne.products; 
+            console.log(products);
+            
+            const oneProduct = products.find((val: { productId: any }) => val.productId.equals(productId));
             if (!oneProduct) {
                 throw new Error('No Such Product');
             }
