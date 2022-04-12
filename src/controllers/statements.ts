@@ -59,6 +59,7 @@ export default class StatementController extends Controller {
             if(!partyDoc) {
                 throw new Error("Party doesn\'t exists");
             }
+            console.log(JSON.stringify(request))
             const invoiceNumber = partyDoc.name.slice(0, 3) + getOtp(100000, 10000);
             const saveResponse = await statement.bulkWrite([
                 ...request.map(val => {
