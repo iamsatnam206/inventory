@@ -290,7 +290,7 @@ export default class PartyController extends Controller {
                 throw new Error('Order not confirmed');
             }
             // save now
-            const saveResponse = await upsert(SaleInvoice, { ...theOne, status: 'APPROVED' }, saleInvoiceId);
+            const saveResponse = await upsert(SaleInvoice, { status: 'APPROVED' }, saleInvoiceId);
             const products = theOne.products;
 
             // make effect in products
@@ -306,7 +306,7 @@ export default class PartyController extends Controller {
             ])
             // update the statement
             const controller = new StatementController(this.request);
-            controller.save(products.map((val: { productId: string, quantity: number }) => {
+            await controller.save(products.map((val: { productId: string, quantity: number }) => {
                 return {
                     quantityAdded: 0, quantitySubtracted: val.quantity, productId: val.productId, fromParty: theOne.billedFrom, toParty: theOne.billedTo
                 }
