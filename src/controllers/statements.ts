@@ -21,7 +21,7 @@ export default class StatementController extends Controller {
         try {
             // Y-M-D
             // check date validation
-            if(!validateMongooseDate(startDate) || !validateMongooseDate(endDate)) {
+            if (!validateMongooseDate(startDate) || !validateMongooseDate(endDate)) {
                 throw new Error('Date should be in format YYYY-MM-DD')
             }
             const getAllRespsonse = await getAll(statement, {
@@ -29,7 +29,7 @@ export default class StatementController extends Controller {
                     $gte: new Date(startDate),
                     $lte: new Date(endDate)
                 },
-                ...(productId ? {productId} : null),
+                ...(productId ? { productId } : null),
             }, pageNumber, pageSize)
 
             return {
@@ -52,15 +52,15 @@ export default class StatementController extends Controller {
     }
 
     @Post("/save")
-    public async save(@Body() request: {quantityAdded: number, quantitySubtracted: number, productId: string, fromParty: string, toParty: string}[]): Promise<Response> {
+    public async save(@Body() request: { quantityAdded: number, quantitySubtracted: number, productId: string, fromParty: string, toParty: string }[]): Promise<Response> {
         try {
             // get the party
             const partyDoc = await getById(party, request[0].fromParty);
-            if(!partyDoc) {
+            if (!partyDoc) {
                 throw new Error("Party doesn\'t exists");
             }
             const invoiceNumber = partyDoc.name.slice(0, 3) + (await getOtp(100000, 10000));
-            console.log(JSON.stringify([ 
+            console.log(JSON.stringify([
                 ...request.map(val => {
                     return {
                         insertOne: {
@@ -69,15 +69,15 @@ export default class StatementController extends Controller {
                     }
                 })
             ]))
-            const saveResponse = await statement.bulkWrite([ 
-                ...request.map(val => {
+            const saveResponse = await statement.bulkWrite(
+                request.map(val => {
                     return {
                         insertOne: {
                             ...val, invoiceNumber: invoiceNumber
                         }
                     }
                 })
-            ])
+            )
             return {
                 data: saveResponse,
                 error: '',
