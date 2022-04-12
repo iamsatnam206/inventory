@@ -306,11 +306,13 @@ export default class PartyController extends Controller {
             ])
             // update the statement
             const controller = new StatementController(this.request);
-            await controller.save(products.map((val: { productId: string, quantity: number }) => {
+            const res = await controller.save(products.map((val: { productId: string, quantity: number }) => {
                 return {
                     quantityAdded: 0, quantitySubtracted: val.quantity, productId: val.productId, fromParty: theOne.billedFrom, toParty: theOne.billedTo
                 }
             }))
+            console.log(res);
+            
             return {
                 data: saveResponse,
                 error: '',
