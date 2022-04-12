@@ -69,12 +69,10 @@ export default class StatementController extends Controller {
                     }
                 })
             ]))
-            const saveResponse = await statement.bulkWrite(
+            const saveResponse = await statement.insertMany(
                 request.map(val => {
                     return {
-                        insertOne: {
-                            ...val, invoiceNumber: invoiceNumber
-                        }
+                        ...val, invoiceNumber: invoiceNumber
                     }
                 })
             )
