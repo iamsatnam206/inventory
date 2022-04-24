@@ -9,12 +9,14 @@ Route.post('/sale/save', async (req: Request, res: Response) => {
         billedTo,
         shippingAddress,
         invoiceDate,
+        isBlacked,
         dispatchThrough,
         products,
         totalAmount,
         id } = body;
     const controller = new SaleController(req);
     const respsone = await controller.save({
+        isBlacked,
         billedFrom,
         billedTo,
         shippingAddress,
@@ -28,9 +30,9 @@ Route.post('/sale/save', async (req: Request, res: Response) => {
 });
 Route.get('/sale/getAll', async (req: Request, res: Response) => {
     const query = req.query;
-    const { pageNumber, pageSize, status } = query;
+    const { pageNumber, pageSize, status, isBlacked } = query;
     const controller = new SaleController(req);
-    const respsone = await controller.getAll(pageNumber ? +pageNumber : 1, pageSize ? +pageSize : 20, status as string);
+    const respsone = await controller.getAll(pageNumber ? +pageNumber : 1, pageSize ? +pageSize : 20, status as string, isBlacked ? (isBlacked === 'true' ? true : false) : undefined);
     return res.send(respsone)
 });
 Route.get('/sale/get', async (req: Request, res: Response) => {
@@ -50,12 +52,12 @@ Route.get('/sale/get', async (req: Request, res: Response) => {
 Route.post('/sale/serialNumberEntry', async (req: Request, res: Response) => {
     const body = req.body;
     const { saleInvoiceId,
-        productId,
+        itemId,
         serialNumber } = body;
     const controller = new SaleController(req);
     const respsone = await controller.serialNumberEntry({
         saleInvoiceId,
-        productId,
+        itemId,
         serialNumber
     });
     return res.send(respsone)

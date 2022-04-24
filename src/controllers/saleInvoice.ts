@@ -6,6 +6,8 @@ import ProductsModel from '../models/products';
 import { getAll, getById, upsert } from "../helpers/db";
 import { Request } from "express";
 import StatementController from "./statements";
+import { Types } from "mongoose";
+import { getOtp } from "../helpers/utility";
 
 interface saleInvoice {
     billedFrom: string,
@@ -20,11 +22,12 @@ interface saleInvoice {
         discount: number
     }[],
     totalAmount: number,
+    isBlacked?: boolean,
     id?: string
 }
 interface saleInvoiceSerial {
     saleInvoiceId: string,
-    productId: string,
+    itemId: string,
     serialNumber: string
 }
 
@@ -49,15 +52,19 @@ export default class PartyController extends Controller {
                 dispatchThrough,
                 products,
                 totalAmount,
-                id } = request;
+                isBlacked,
+                id } = request; 
+            const invoiceNo = await getOtp(100000, 10000);
             const saveResponse = await upsert(SaleInvoice, {
+                invoiceNo,
                 billedFrom,
                 billedTo,
                 shippingAddress,
                 invoiceDate,
                 dispatchThrough,
                 products,
-                totalAmount
+                totalAmount,
+                isBlacked
             }, id);
             return {
                 data: saveResponse,
@@ -80,7 +87,7 @@ export default class PartyController extends Controller {
 
     // @Security('Bearer')
     @Get("/getAll")
-    public async getAll(@Query('pageNumber') pageNumber: number = 1, @Query() pageSize: number = 20, @Query() status: string = ''): Promise<Response> {
+    public async getAll(@Query('pageNumber') pageNumber: number = 1, @Query() pageSize: number = 20, @Query() status: string = '', @Query() isBlacked: any = undefined): Promise<Response> {
         try {
             if (status && (status !== 'PENDING' && status !== 'APPROVED' && status !== 'CONFIRM')) {
                 throw new Error('Status is incorrect!');
@@ -90,7 +97,7 @@ export default class PartyController extends Controller {
             // }, pageNumber, pageSize);
             const getAllResponse = await SaleInvoice.aggregate([
                 {
-                    $match: { ...(status ? { status } : null) }
+                    $match: { ...(status ? { status } : null), ...(isBlacked !== undefined ? {isBlacked} : null) }
                 },
                 {
                     $facet: {
@@ -183,9 +190,48 @@ export default class PartyController extends Controller {
     @Get("/get")
     public async get(@Query() id: string): Promise<Response> {
         try {
-            const getResponse = await SaleInvoice.findOne({ _id: id });
+            // const getResponse = await SaleInvoice.findOne({ _id: id });
+            const getAllResponse = await SaleInvoice.aggregate([
+                {
+                    $match: { _id: new Types.ObjectId(id) }
+                },
+                {
+                    $lookup: {
+                        from: 'parties',
+                        localField: 'billedFrom',
+                        foreignField: '_id',
+                        as: 'billedFrom'
+                    }
+                },
+                {
+                    $lookup: {
+                        from: 'parties',
+                        localField: 'billedTo',
+                        foreignField: '_id',
+                        as: 'billedTo'
+                    }
+                },
+                {
+                    $lookup: {
+                        from: 'products',
+                        localField: 'products.productId',
+                        foreignField: '_id',
+                        as: 'product'
+                    }
+                },
+                {
+                    $addFields: {
+                        billedFrom: { $arrayElemAt: ["$billedFrom", 0] },
+                        billedTo: { $arrayElemAt: ["$billedTo", 0] },
+                        'products.productData': {$first: '$product'}
+                    }
+                },
+                {
+                    $project: {'product': 0}
+                },
+            ]).exec()
             return {
-                data: getResponse,
+                data: getAllResponse[0],
                 error: '',
                 message: 'Success',
                 status: 200
@@ -206,7 +252,7 @@ export default class PartyController extends Controller {
     public async serialNumberEntry(@Body() request: saleInvoiceSerial): Promise<Response> {
         try {
             const { saleInvoiceId,
-                productId,
+                itemId,
                 serialNumber } = request;
             if (serialNumber.length < 5) {
                 throw new Error('Serial number should be atleast 5 chars long')
@@ -218,7 +264,7 @@ export default class PartyController extends Controller {
             const products = theOne.products; 
             console.log(products);
             
-            const oneProduct = products.find((val: { productId: any }) => val.productId.equals(productId));
+            const oneProduct = products.find((val: { _id: any }) => val._id.equals(itemId));
             if (!oneProduct) {
                 throw new Error('No Such Product');
             }

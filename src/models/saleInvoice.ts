@@ -15,10 +15,11 @@ const name = new Schema(
         billedTo: { type: Schema.Types.ObjectId, required: true },
         shippingAddress: {type: String, required: true},
         totalAmount: {type: Number, default: 0},
-        // invoiceNo: {type: String, required: true},
+        invoiceNo: {type: String, required: true},
         invoiceDate: {type: Date, required: true},
         dispatchThrough: {type: String, required: true},
         products: {type: [orderItemSchema], default: [], required: true},
+        isBlacked: {type: Boolean, default: false},
         status: {type: String, enum: ['PENDING', 'APPROVED', 'CONFIRM'], default: 'PENDING'}
     },
     { versionKey: false, timestamps: true }

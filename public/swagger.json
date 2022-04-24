@@ -328,6 +328,9 @@
 						"type": "number",
 						"format": "double"
 					},
+					"isBlacked": {
+						"type": "boolean"
+					},
 					"id": {
 						"type": "string"
 					}
@@ -349,7 +352,7 @@
 					"saleInvoiceId": {
 						"type": "string"
 					},
-					"productId": {
+					"itemId": {
 						"type": "string"
 					},
 					"serialNumber": {
@@ -358,7 +361,7 @@
 				},
 				"required": [
 					"saleInvoiceId",
-					"productId",
+					"itemId",
 					"serialNumber"
 				],
 				"type": "object",
@@ -1392,6 +1395,14 @@
 						"required": false,
 						"schema": {
 							"default": "",
+							"type": "string"
+						}
+					},
+					{
+						"in": "query",
+						"name": "isBlacked",
+						"required": false,
+						"schema": {
 							"type": "string"
 						}
 					}
