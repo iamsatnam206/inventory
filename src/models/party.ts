@@ -8,9 +8,10 @@ const party = new Schema(
         gstNumber: {
             type: String,
             trim: true,
-            required: true
+            required: true,
+            unique: true
         },
-        phone: { type: Number, trim: true, required: true },
+        phone: { type: Number, trim: true, required: true, unique: true },
         pinCode: { type: Number, required: true },
         contactPerson: { type: String, trim: true, required: true },
         userName: { type: String, trim: true, required: true, unique: true },
