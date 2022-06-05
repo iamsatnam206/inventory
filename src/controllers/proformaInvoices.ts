@@ -87,6 +87,14 @@ export default class PartyController extends Controller {
                             },
                             {
                                 $lookup: {
+                                    from: 'products',
+                                    localField: 'items.productId',
+                                    foreignField: '_id',
+                                    as: 'items.productSchema'
+                                }
+                            },
+                            {
+                                $lookup: {
                                     from: 'parties',
                                     localField: 'billedTo',
                                     foreignField: '_id',

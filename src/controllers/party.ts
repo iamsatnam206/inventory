@@ -3,7 +3,7 @@ import { Response } from '../models/interfaces';
 import PartyModel from '../models/party';
 import _ from 'lodash';
 import { signToken, verifyToken } from "../helpers/jwt";
-import { getAll, upsert } from "../helpers/db";
+import { findOne, getAll, upsert } from "../helpers/db";
 const { genHash, verifyHash } = require('../helpers/utility')
 
 interface partySave {
@@ -42,6 +42,14 @@ export default class PartyController extends Controller {
             } else {
                 const hashedPassword = await genHash(request.password);
                 cloned.password = hashedPassword
+                const theOne = await findOne(PartyModel, {gstNumber: request.gstNumber.trim()})
+                if(theOne) {
+                    throw new Error('Gst number should ne unique')
+                }
+                const theOnePhone = await findOne(PartyModel, {phone: request.phone})
+                if(theOnePhone) {
+                    throw new Error('Phone number should ne unique')
+                }
             }
             const saveResponse = await upsert(PartyModel, cloned, request.id);
             return {
