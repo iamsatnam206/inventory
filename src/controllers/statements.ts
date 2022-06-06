@@ -5,6 +5,7 @@ import { Request } from "express";
 import statement from "../models/statement";
 import party from "../models/party";
 import { getOtp, validateMongooseDate } from "../helpers/utility";
+import { Types } from "mongoose";
 
 
 @Tags('Statements')
@@ -39,7 +40,7 @@ export default class StatementController extends Controller {
                             $gte: new Date(startDate),
                             $lte: new Date(endDate)
                         },
-                        ...(productId ? { productId } : null),
+                        ...(productId ? { productId: new Types.ObjectId(productId) } : null),
                     }
                 },
                 {
