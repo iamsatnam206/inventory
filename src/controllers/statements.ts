@@ -24,15 +24,15 @@ export default class StatementController extends Controller {
             if (!validateMongooseDate(startDate) || !validateMongooseDate(endDate)) {
                 throw new Error('Date should be in format YYYY-MM-DD')
             }
-            const getAllRespsonse = await getAll(statement, {
-                createdAt: {
-                    $gte: new Date(startDate),
-                    $lte: new Date(endDate)
-                },
-                ...(productId ? { productId } : null),
-            }, pageNumber, pageSize)
+            // const getAllRespsonse = await getAll(statement, {
+            //     createdAt: {
+            //         $gte: new Date(startDate),
+            //         $lte: new Date(endDate)
+            //     },
+            //     ...(productId ? { productId } : null),
+            // }, pageNumber, pageSize)
 
-            const getAllResponse = await statement.aggregate([
+            const [getAllResponse] = await statement.aggregate([
                 {
                     $match: {
                         createdAt: {
@@ -109,7 +109,7 @@ export default class StatementController extends Controller {
             ]).exec()
 
             return {
-                data: getAllRespsonse,
+                data: getAllResponse,
                 error: '',
                 message: 'Success',
                 status: 200
