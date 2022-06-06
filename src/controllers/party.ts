@@ -44,11 +44,11 @@ export default class PartyController extends Controller {
                 cloned.password = hashedPassword
                 const theOne = await findOne(PartyModel, {gstNumber: request.gstNumber.trim()})
                 if(theOne) {
-                    throw new Error('Gst number should ne unique')
+                    throw new Error('Gst number should be unique')
                 }
                 const theOnePhone = await findOne(PartyModel, {phone: request.phone})
                 if(theOnePhone) {
-                    throw new Error('Phone number should ne unique')
+                    throw new Error('Phone number should be unique')
                 }
             }
             const saveResponse = await upsert(PartyModel, cloned, request.id);

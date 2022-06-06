@@ -32,6 +32,82 @@ export default class StatementController extends Controller {
                 ...(productId ? { productId } : null),
             }, pageNumber, pageSize)
 
+            const getAllResponse = await statement.aggregate([
+                {
+                    $match: {
+                        createdAt: {
+                            $gte: new Date(startDate),
+                            $lte: new Date(endDate)
+                        },
+                        ...(productId ? { productId } : null),
+                    }
+                },
+                {
+                    $facet: {
+                        totalCount: [
+                            { $count: 'totalItems' }
+                        ],
+                        items: [
+                            {
+                                $skip: (pageNumber - 1) * pageSize
+                            },
+                            {
+                                $limit: pageSize
+                            },
+                            {
+                                $lookup: {
+                                    from: 'parties',
+                                    localField: 'fromParty',
+                                    foreignField: '_id',
+                                    as: 'fromPartyDetails'
+                                }
+                            },
+                            {
+                                $lookup: {
+                                    from: 'parties',
+                                    localField: 'toParty',
+                                    foreignField: '_id',
+                                    as: 'toPartyDetails'
+                                }
+                            },
+                            {
+                                $lookup: {
+                                    from: 'products',
+                                    localField: 'productId',
+                                    foreignField: '_id',
+                                    as: 'productDetails'
+                                }
+                            },
+                            {
+                                $addFields: {
+                                    fromPartyDetails: { $arrayElemAt: ["$fromPartyDetails", 0] },
+                                    toPartyDetails: { $arrayElemAt: ["$toPartyDetails", 0] },
+                                    productDetails: { $arrayElemAt: ["$productDetails", 0] },
+                                }
+                            },
+                            // {
+                            //     $replaceRoot: { newRoot: { $mergeObjects: [{ $arrayElemAt: ["$brandDoc", 0] }, "$$ROOT"] } }
+                            // },
+
+                        ]
+                    },
+                },
+                {
+                    $replaceWith: {
+                        totalItems: {
+                            $sum: "$totalCount.totalItems"
+                        }, items: "$items"
+                    }
+                },
+                {
+                    $addFields: {
+                        pageNumber: pageNumber,
+                        pageSize: pageSize
+                    }
+                },
+
+            ]).exec()
+
             return {
                 data: getAllRespsonse,
                 error: '',
