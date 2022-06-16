@@ -55,6 +55,15 @@ export default class PartyController extends Controller {
                 isBlacked,
                 id } = request; 
             const invoiceNo = await getOtp(100000, 10000);
+            const mappedProducts = products.map(val => {
+                const newArr = [];
+                for(let i = 0; i < val.quantity; i++) {
+                    newArr.push({...val})
+                }
+                return newArr
+            });
+            // @ts-ignore
+            const actualProducts = [].concat.apply([], mappedProducts)
             const saveResponse = await upsert(SaleInvoice, {
                 invoiceNo,
                 billedFrom,
@@ -62,7 +71,7 @@ export default class PartyController extends Controller {
                 shippingAddress,
                 invoiceDate,
                 dispatchThrough,
-                products,
+                products: actualProducts,
                 totalAmount,
                 isBlacked
             }, id);
