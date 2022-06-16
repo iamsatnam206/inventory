@@ -42,8 +42,10 @@ export default class PartyController extends Controller {
             } else {
                 const hashedPassword = await genHash(request.password);
                 cloned.password = hashedPassword
-                const theOne = await findOne(PartyModel, {gstNumber: request.gstNumber.trim()})
+                const theOne = await findOne(PartyModel, {gstNumber: request.gstNumber})
                 if(theOne) {
+                    console.log(theOne);
+                    
                     throw new Error('Gst number should be unique')
                 }
                 const theOnePhone = await findOne(PartyModel, {phone: request.phone})

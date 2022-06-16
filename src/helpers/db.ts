@@ -6,7 +6,7 @@ export const getById = async (model: Model<any>, id: string) => {
 }
 
 export const findOne = async (model: Model<any>, query: any) => {
-    const data = await model.find(query);
+    const data = await model.findOne(query);
     return data;
 }
 
