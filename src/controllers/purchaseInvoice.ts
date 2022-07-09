@@ -89,7 +89,7 @@ export default class PartyController extends Controller {
     public async getAll(@Query('pageNumber') pageNumber: number = 1, @Query() pageSize: number = 20): Promise<Response> {
         try {
             // const getAllResponse = await getAll(PurchaseInvoice, {}, pageNumber, pageSize);
-            const getAllResponse = await PurchaseInvoice.aggregate([
+            const [getAllResponse] = await PurchaseInvoice.aggregate([
                 // {
                 //     $match: { ...(status ? { status } : null), ...(isBlacked !== undefined ? {isBlacked} : null) }
                 // },
