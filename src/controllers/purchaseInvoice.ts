@@ -88,7 +88,78 @@ export default class PartyController extends Controller {
     @Get("/getAll")
     public async getAll(@Query('pageNumber') pageNumber: number = 1, @Query() pageSize: number = 20): Promise<Response> {
         try {
-            const getAllResponse = await getAll(PurchaseInvoice, {}, pageNumber, pageSize);
+            // const getAllResponse = await getAll(PurchaseInvoice, {}, pageNumber, pageSize);
+            const getAllResponse = await PurchaseInvoice.aggregate([
+                // {
+                //     $match: { ...(status ? { status } : null), ...(isBlacked !== undefined ? {isBlacked} : null) }
+                // },
+                {
+                    $facet: {
+                        totalCount: [
+                            { $count: 'totalItems' }
+                        ],
+                        items: [
+                            {
+                                $skip: (pageNumber - 1) * pageSize
+                            },
+                            {
+                                $limit: pageSize
+                            },
+                            {
+                                $lookup: {
+                                    from: 'parties',
+                                    localField: 'billedFrom',
+                                    foreignField: '_id',
+                                    as: 'billedFrom'
+                                }
+                            },
+                            {
+                                $lookup: {
+                                    from: 'products',
+                                    localField: 'items.productId',
+                                    foreignField: '_id',
+                                    as: 'items.productSchema'
+                                }
+                            },
+                            {
+                                $lookup: {
+                                    from: 'parties',
+                                    localField: 'billedTo',
+                                    foreignField: '_id',
+                                    as: 'billedTo'
+                                }
+                            },
+                            {
+                                $addFields: {
+                                    billedFrom: { $arrayElemAt: ["$billedFrom", 0] },
+                                    billedTo: { $arrayElemAt: ["$billedTo", 0] },
+                                }
+                            },
+                            {
+                                $project: { 'product': 0 }
+                            }
+                            // {
+                            //     $replaceRoot: { newRoot: { $mergeObjects: [{ $arrayElemAt: ["$brandDoc", 0] }, "$$ROOT"] } }
+                            // },
+
+                        ]
+                    },
+                },
+                {
+                    $replaceWith: {
+                        totalItems: {
+                            $sum: "$totalCount.totalItems"
+                        }, items: "$items"
+                    }
+                },
+                {
+                    $addFields: {
+                        pageNumber: pageNumber,
+                        pageSize: pageSize
+                    }
+                },
+
+            ]).exec()
             return {
                 data: getAllResponse,
                 error: '',
