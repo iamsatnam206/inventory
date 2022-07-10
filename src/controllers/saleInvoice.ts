@@ -148,7 +148,7 @@ export default class PartyController extends Controller {
                                 $addFields: {
                                     billedFrom: { $arrayElemAt: ["$billedFrom", 0] },
                                     billedTo: { $arrayElemAt: ["$billedTo", 0] },
-                                    'products.productData': {$first: '$product'}
+                                    'products.productData': '$product'
                                 }
                             },
                             {
