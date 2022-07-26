@@ -49,7 +49,7 @@ export default class InvoiceController extends Controller {
             const fromParty = await findOne(party, { _id: invoiceData.billedFrom })
             const toParty = await findOne(party, { _id: invoiceData.billedTo })
             let products = [];
-            if (type === 'DELIVERY' || type === 'SALE') {
+            if (type === 'DELIVERY') {
                 products = await notes.aggregate([
                     {
                         $match: { _id: new Types.ObjectId(invoiceId) }
@@ -74,7 +74,34 @@ export default class InvoiceController extends Controller {
                     },
                 ])
 
-            } else if (type === 'PROFORMA') {
+            }
+            else if (type === 'SALE') {
+                products = await notes.aggregate([
+                    {
+                        $match: { _id: new Types.ObjectId(invoiceId) }
+                    },
+                    {
+                        $lookup: {
+                            from: 'products',
+                            localField: 'products.productId',
+                            foreignField: '_id',
+                            as: 'product'
+                        }
+                    },
+                    {
+                        $addFields: {
+                            billedFrom: { $arrayElemAt: ["$billedFrom", 0] },
+                            billedTo: { $arrayElemAt: ["$billedTo", 0] },
+                            'products.productData': { $first: '$product' }
+                        }
+                    },
+                    {
+                        $project: { 'product': 0 }
+                    },
+                ])
+
+            }
+            else if (type === 'PROFORMA') {
                 products = await proformaInvoice.aggregate([
                     {
                         $match: { _id: new Types.ObjectId(invoiceId) }
