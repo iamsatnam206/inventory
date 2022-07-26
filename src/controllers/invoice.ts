@@ -53,7 +53,7 @@ export default class InvoiceController extends Controller {
                 products = await notes.aggregate([
                     {
                         $match: {
-                            _id: new Types.ObjectId(invoiceData)
+                            _id: new Types.ObjectId(invoiceId)
                         }
                     }, 
                     {
@@ -70,7 +70,7 @@ export default class InvoiceController extends Controller {
                 products = await proformaInvoice.aggregate([
                     {
                         $match: {
-                            _id: new Types.ObjectId(invoiceData)
+                            _id: new Types.ObjectId(invoiceId)
                         }
                     }, 
                     {
