@@ -1,0 +1,194 @@
+<!DOCTYPE HTML5>
+<html>
+	<head>
+		<title>Ejercicios prácticos HTML5</title>
+		<meta charset="utf-8">
+		<meta name="author" content="">
+		<meta name="description" content="Ejercicios prácticos HTML5">
+		<meta name="keywords" content="Ejercicios, Soluciones, Prácticas, HTML5">
+        <style>
+            table, th, td {
+            border: 1px solid black;
+            border-collapse: collapse;
+            }
+        </style>
+	</head>
+	<body><center>
+		<table>
+		<caption><h3>{{invoiceTitle}}</h3></caption>
+		<tr>
+			<td rowspan="4" colspan="2"><p>
+<strong>{{billedFromName}}</strong><br/>
+{{billedFromAddress}}
+{{billedFromCity}}
+GSTIN/UIN: {{billedFromGST}}
+State Name : Haryana, Code : 06
+            </p></td>
+			<td style="width:25%">Invoice No.
+                <strong>{{gstNo}}</strong></td>
+            <td style="width:25%">Dated: <strong>{{invoiceDate}}</strong></td>
+		</tr>
+		<tr>
+			<td>Delivery Note</td>
+			<td></td>
+            
+		</tr>
+        <tr>
+			<td>Dispatch Doc No.</td>
+			<td>Delivery Note Date</td>
+            
+		</tr>
+		<tr>
+			<td>Dispatched through</td>
+			<td>{{dispatchedThrough}}</td>
+		</tr>
+        <tr>
+            <td colspan="2" style="height:100px;width: 50%;"><p>
+Consignee (Ship to)
+<strong>{{billedToName}}</strong>
+{{billedToAddress}}
+GSTIN/UIN : {{billedToGST}}
+State Name : Haryana, Code : 06
+Contact : {{billedToContact}}
+            </p></td>
+            <td colspan="2" style="height:100px;width: 50%;"><p>
+Buyer (Bill to)
+<strong>{{billedToName}}</strong>
+{{billedToAddress}}
+GSTIN/UIN : {{billedToGST}}
+State Name : Haryana, Code : 06
+Contact : {{billedToContact}}
+            </p></td>
+        </tr>
+		</table>
+        <table>
+            <tr>
+                <th style="width:3%;text-align: center;">SI No.</th>
+                <th style="width:30%;text-align: center;">Description of Goods</th>
+                <th style="width:10%;text-align: center;">HSN/SAC</th>
+                <th style="width:10%;text-align: center;">Quantity</th>
+                <th style="width:10%;text-align: center;">Rate (Incl. of Tax)</th>
+                <th style="width:10%;text-align: center;">Rate</th>
+                <th style="width:5%;text-align: center;">per</th>
+                <th style="width:10%;text-align: center;">Disc. %</th>
+                <th style="width:12%;text-align: center;">Amount</th>
+            </tr>
+            <tr>
+                {{#each tableData}}
+                {{#with this}}
+                <td style="height:200px;text-align: left;">
+                    {{sNo}}
+                </td>
+                <td style="height:200px;text-align: left;">
+                    {{description}}
+                </td>
+                <td style="height:200px;text-align: left;">
+                    {{hsn}}
+                </td>
+                <td style="height:200px;text-align: left;">
+                    {{quantity}}
+                </td>
+                <td style="height:200px;text-align: left;">
+                    {{rateWithTax}}
+                </td>
+                <td style="height:200px;text-align: left;">
+                    {{rate}}
+                </td>
+                <td style="height:200px;text-align: left;">
+                    {{per}}
+                </td>
+                <td style="height:200px;text-align: left;">
+                    {{disc}}
+                </td>
+                <td style="height:200px;text-align: left;">
+                    {{amount}}
+                </td>
+
+                {{/with}}
+                {{/each}}
+            </tr>
+            <tr>
+                <td></td>
+                <td>{{total}}</td>
+                <td></td>
+                <td><strong>{{totalNumber}} Nos</strong></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td><strong>₹ {{totalAmount}}</strong></td>
+            </tr>
+            </table>
+            <table>
+                <tr>
+                    <td colspan="7" style="height:20px">Amount Chargeable (in words) <br/><strong>INR {{amountInWords}} Only</strong></td>
+                </tr>
+                <tr>
+                    <td rowspan="2" style="text-align: center;width: 30%;">HSN/SAC</td>
+                    <td rowspan="2" style="text-align: center;">Taxable Value</td>
+                    <td colspan="2" style="text-align: center;">Central Tax</td>
+                    <td colspan="2" style="text-align: center;">State Tax</td>
+                    <td rowspan="2" style="text-align: center;">Total Tax amount</td>
+                </tr>
+                <tr>
+                    <td  style="text-align: center;">rate</td>
+                    <td style="text-align: center;">amount</td>
+                    <td style="text-align: center;">rate</td>
+                    <td style="text-align: center;">amount</td>
+                </tr>
+                <tr>
+                    <td style="text-align: left;">85071000</td>
+                    <td style="text-align: right;">10,431.26</td>
+                    <td style="text-align: right;">14%</td>
+                    <td style="text-align: right;">1,460.38</td>
+                    <td style="text-align: right;">14%</td>
+                    <td style="text-align: right;">1,460.38</td>
+                    <td style="text-align: right;">2,920.76</td>
+                </tr>
+                <tr>
+                    <td style="text-align: right;"><strong>Total</strong></td>
+                    <td style="text-align: right;"><strong>10,431.26</strong></td>
+                    <td style="text-align: right;"></td>
+                    <td style="text-align: right;"><strong>1,460.38</strong></td>
+                    <td style="text-align: right;"></td>
+                    <td style="text-align: right;"><strong>1,460.38</strong></td>
+                    <td style="text-align: right;"><strong>2,920.76</strong></td>
+                </tr>
+                <tr>
+                    <td colspan="4" style="width:55%">
+                        <p>
+Tax Amount (in words) : <strong>INR {{totalAmountWords}} Only</strong><br/>
+Company's PAN : <strong>{{companyPan}}</strong>
+Declaration
+We declare that this invoice shows the actual price of the
+goods described and that all particulars are true and correct.
+TERMS & CONDITIONS
+1.Goods once sold WILL NOT BE TAKEN BACK.
+2.Interest @ 24% p.a. will be charged if the payment is not
+made within 30 days of date of invoice/sale
+3.Warranty/Gurantee is responsibility of Principal Company
+4.Cheque Bounce charges Rs 500/- Will be charged.
+HDFC BANK- A/C NO. 50200034070680 , IFSC
+-HDFC0000195,KUNJPURA ROAD BRANCH,KARNAL
+                        </p>
+                    </td>
+                    <td colspan="3" style="width:45%">
+                        <pre>
+Company's Bank Details
+Bank Name : <strong>Kotak Mahindra</strong> 
+BankA/c No. : <strong>9312246977</strong>
+Branch & IFS Code : <strong>Sector-12,Karnal & KKBK0000295</strong>
+                        </pre>
+                    </td>
+                </tr>
+                <tr>
+                    <td colspan="4" style="height:20px">
+                        Customer's Seal and Signature
+                    </td>
+                    <td colspan="3">
+                        Authorised Signatory
+                    </td>
+                </tr>
+            </table>
+        </center></body>
+</html>

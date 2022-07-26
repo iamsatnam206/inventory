@@ -10,6 +10,8 @@ import PurchaseController from '../controllers/purchaseInvoice';
 import ReceiptController from '../controllers/receipt';
 import NotesController from '../controllers/notes';
 import StatementController from '../controllers/statements';
+import InvoiceController from '../controllers/invoice';
+
 
 
 
@@ -25,7 +27,12 @@ const orderRequestRoute = require('./orderRequest');
 const invoiceRoute = require('./invoices');
 const notesRoute = require('./notes');
 const receiptRoute = require('./receipt');
+const invoicePDFRoute = require('./invoice');
 
+
+for (const property in invoicePDFRoute) {
+  Route.use('/invoicePdf', invoicePDFRoute[property]);
+}
 for (const property in notesRoute) {
   Route.use('/notes', notesRoute[property]);
 }
