@@ -25,75 +25,81 @@ export default class InvoiceController extends Controller {
     constructor(res: Response) {
         super();
         this.res = res;
-    } 
+    }
     @Get("/get")
     public async get(@Query() invoiceId: string, @Query() type: string): Promise<any> {
         try {
             let invoiceData = null;
-            if(type === 'DELIVERY') {
-                invoiceData = await findOne(notes, {_id: invoiceId})
+            if (type === 'DELIVERY') {
+                invoiceData = await findOne(notes, { _id: invoiceId })
 
-            } else if(type === 'SALE') {
-                invoiceData = await findOne(saleInvoice, {_id: invoiceId})
+            } else if (type === 'SALE') {
+                invoiceData = await findOne(saleInvoice, { _id: invoiceId })
 
 
-            } else if(type === 'PROFORMA') {
-                invoiceData = await findOne(proformaInvoice, {_id: invoiceId})
+            } else if (type === 'PROFORMA') {
+                invoiceData = await findOne(proformaInvoice, { _id: invoiceId })
             }
-            if(!invoiceData) {
+            if (!invoiceData) {
                 throw new Error('Invalid invoice')
             }
             invoiceData.billedFrom = invoiceData.billedFrom || invoiceData.fromParty;
             invoiceData.billedTo = invoiceData.billedTo || invoiceData.toParty;
             invoiceData.products = invoiceData.products || invoiceData.items || []
-            const fromParty = await findOne(party, {_id: invoiceData.billedFrom})
-            const toParty = await findOne(party, {_id: invoiceData.billedTo})
+            const fromParty = await findOne(party, { _id: invoiceData.billedFrom })
+            const toParty = await findOne(party, { _id: invoiceData.billedTo })
             let products = [];
-            if(type === 'DELIVERY' || type === 'SALE') {
+            if (type === 'DELIVERY' || type === 'SALE') {
                 products = await notes.aggregate([
                     {
-                        $match: {
-                            _id: new Types.ObjectId(invoiceId)
-                        }
-                    }, 
-                    // {
-                    //     $lookup: {
-                    //     from: 'products',
-                    //     localField: 'products.productId',
-                    //     foreignField: '_id',
-                    //     as: 'product'
-                    //     }
-                    // },
-                    // {
-                    //     $addFields: {
-                    //         'products.productData': '$product'
-                    //     }
-                    // },
-                    // {
-                    //     $project: {'product': 0}
-                    // }
-                ])
-
-            } else if(type === 'PROFORMA') {
-                products = await proformaInvoice.aggregate([
-                    {
-                        $match: {
-                            _id: new Types.ObjectId(invoiceId)
-                        }
-                    }, 
+                        $match: { _id: new Types.ObjectId(invoiceId) }
+                    },
                     {
                         $lookup: {
-                        from: 'items',
-                        localField: 'items.productId',
-                        foreignField: '_id',
-                        as: 'items.productData'
+                            from: 'products',
+                            localField: 'products.productId',
+                            foreignField: '_id',
+                            as: 'product'
+                        }
+                    },
+                    {
+                        $addFields: {
+                            billedFrom: { $arrayElemAt: ["$billedFrom", 0] },
+                            billedTo: { $arrayElemAt: ["$billedTo", 0] },
+                            'products.productData': { $first: '$product' }
+                        }
+                    },
+                    {
+                        $project: { 'product': 0 }
+                    },
+                ])
+
+            } else if (type === 'PROFORMA') {
+                products = await proformaInvoice.aggregate([
+                    {
+                        $match: { _id: new Types.ObjectId(invoiceId) }
+                    },
+                    {
+                        $lookup: {
+                            from: 'items',
+                            localField: 'items.productId',
+                            foreignField: '_id',
+                            as: 'product'
                         }
                     },
                     {
                         $addFields: {
                             products: '$items'
                         }
-                    }
+                    },
+                    {
+                        $addFields: {
+                            'products.productData': { $first: '$product' }
+                        }
+                    },
+                    {
+                        $project: { 'product': 0 }
+                    },
                 ])
             }
 
