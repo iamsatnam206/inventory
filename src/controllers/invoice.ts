@@ -127,10 +127,9 @@ export default class InvoiceController extends Controller {
             }
 
             const product = products[0].products;
-            const actualProducts = Array.from(new Set(product.map((val: any) => {return val.productId}))).map(val => { return product.find((val2: any) => {return val2.productId === val}) })
-            console.log(JSON.stringify(actualProducts));
+            const actualProducts = Array.from(new Set(product.map((val: any) => { return val.productId.toString() })))
+                .map(vals => { return product.find((val2: any) => { return val2.productId.equals(vals) }) })
             const invoiceFile = await fs.promises.readFile(path.join(__dirname, '../templates', 'invoice.html'))
-            // console.log('read', invoiceFile)
             const template = handlebar.compile(invoiceFile.toString());
             const data = {
                 invoiceTitle: type,
@@ -144,11 +143,17 @@ export default class InvoiceController extends Controller {
                 billedToName: toParty.name,
                 billedToAddress: toParty.address,
                 billedToContact: toParty.phone,
-                tableData: [
-                    {
-                        sNo: 1, description: 'description here', hsn: 'hsn number', quantity: 23, rateWithTax: 'tax', rate: 34, per: 34, disc: 90, amount: 890, total: 45, totalNumer: 67, totalAmount: 8900, totalAmountWords: 'Sample here', companyPan: 'PAN number'
+                tableData: 
+                actualProducts.map((val, index) => {
+                    return {
+                        sNo: index + 1, description: val.productData.description, hsn: val.productData.hsnCode, quantity: val.quantity, rateWithTax: val.rate + val.taxableAmount, rate: val.rate, per: 10, disc: val.discount, amount: val.quantity * (val.rate + val.taxableAmount)
                     }
-                ]
+                }),
+                totalNumber: actualProducts.reduce((pre, next) => {
+                    return pre.quantity + next.quantity
+                }, [0]), totalAmount: actualProducts.reduce((pre, next) => {
+                    return pre.quantity * (pre.rate + pre.taxableAmount) + next.quantity * (next.rate + next.taxableAmount)
+                }, [0]), totalAmountWords: 'Pending feature', companyPan: 'Company Pan pending'
             }
             const result = template(data)
             const pdfBuffer = await html2Pdf.generatePdf({ content: result }, { format: 'A4' })
