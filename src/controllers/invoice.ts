@@ -56,14 +56,22 @@ export default class InvoiceController extends Controller {
                             _id: new Types.ObjectId(invoiceId)
                         }
                     }, 
-                    {
-                        $lookup: {
-                        from: 'products',
-                        localField: 'products.productId',
-                        foreignField: '_id',
-                        as: 'products.productData'
-                        }
-                    },
+                    // {
+                    //     $lookup: {
+                    //     from: 'products',
+                    //     localField: 'products.productId',
+                    //     foreignField: '_id',
+                    //     as: 'product'
+                    //     }
+                    // },
+                    // {
+                    //     $addFields: {
+                    //         'products.productData': '$product'
+                    //     }
+                    // },
+                    // {
+                    //     $project: {'product': 0}
+                    // }
                 ])
 
             } else if(type === 'PROFORMA') {
