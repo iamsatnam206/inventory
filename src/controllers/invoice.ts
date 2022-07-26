@@ -76,7 +76,7 @@ export default class InvoiceController extends Controller {
 
             }
             else if (type === 'SALE') {
-                products = await notes.aggregate([
+                products = await saleInvoice.aggregate([
                     {
                         $match: { _id: new Types.ObjectId(invoiceId) }
                     },
