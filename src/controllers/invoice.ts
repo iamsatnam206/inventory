@@ -128,7 +128,7 @@ export default class InvoiceController extends Controller {
 
             const product = products[0].products;
             const actualProducts = Array.from(new Set(product.map((item: any) => item.productId)));
-            console.log(JSON.stringify(actualProducts));
+            console.log(JSON.stringify(product));
             const invoiceFile = await fs.promises.readFile(path.join(__dirname, '../templates', 'invoice.html'))
             // console.log('read', invoiceFile)
             const template = handlebar.compile(invoiceFile.toString());
