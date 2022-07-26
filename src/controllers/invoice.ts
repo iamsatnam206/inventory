@@ -64,8 +64,6 @@ export default class InvoiceController extends Controller {
                     },
                     {
                         $addFields: {
-                            billedFrom: { $arrayElemAt: ["$billedFrom", 0] },
-                            billedTo: { $arrayElemAt: ["$billedTo", 0] },
                             'products.productData': { $first: '$product' }
                         }
                     },
@@ -90,8 +88,6 @@ export default class InvoiceController extends Controller {
                     },
                     {
                         $addFields: {
-                            billedFrom: { $arrayElemAt: ["$billedFrom", 0] },
-                            billedTo: { $arrayElemAt: ["$billedTo", 0] },
                             'products.productData': { $first: '$product' }
                         }
                     },
