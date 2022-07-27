@@ -152,6 +152,7 @@ export default class InvoiceController extends Controller {
                 billedFromAddress: fromParty.address,
                 billedFromCity: fromParty.state,
                 billedFromGST: fromParty.gstNumber,
+                billedToGST: toParty.gstNumber,
                 billedFromState: fromParty.state,
                 billedToState: toParty.state,
                 deliveryNoteDate: invoiceData.receiptDate ? moment(invoiceData.receiptDate).format('DD-MMM-YY') : '',
