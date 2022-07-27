@@ -170,17 +170,17 @@ export default class InvoiceController extends Controller {
             let taxApplied = 0;
             if (fromParty.state.toLowerCase() === toParty.state.toLowerCase()) {
                 data.tableData.push({
-                    sNo: '', description: 'CGST', hsn: '', quantity: '', rateWithTax: '', rate: '', per: '', disc: '', amount: totalAmountCache - (14 * totalAmountCache / 100)
+                    sNo: '', description: 'CGST', hsn: '', quantity: '', rateWithTax: '', rate: '', per: '', disc: '', amount: (14 * totalAmountCache / 100)
                 })
                 data.tableData.push({
-                    sNo: '', description: 'SGST', hsn: '', quantity: '', rateWithTax: '', rate: '', per: '', disc: '', amount: totalAmountCache - (14 * totalAmountCache / 100)
+                    sNo: '', description: 'SGST', hsn: '', quantity: '', rateWithTax: '', rate: '', per: '', disc: '', amount: (14 * totalAmountCache / 100)
                 })
                 taxApplied += 2 * (14 * totalAmountCache / 100)
                 data.centralTax = (14 * totalAmountCache / 100)
                 data.stateTax = (14 * totalAmountCache / 100)
             } else {
                 data.tableData.push({
-                    sNo: '', description: 'IGST', hsn: '', quantity: '', rateWithTax: '', rate: '', per: '', disc: '', amount: totalAmountCache - (28 * totalAmountCache / 100)
+                    sNo: '', description: 'IGST', hsn: '', quantity: '', rateWithTax: '', rate: '', per: '', disc: '', amount: (28 * totalAmountCache / 100)
                 })
                 taxApplied += (28 * totalAmountCache / 100)
                 data.iTax = (28 * totalAmountCache / 100)
