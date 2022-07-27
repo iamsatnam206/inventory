@@ -5,7 +5,7 @@ import handlebar from 'handlebars'
 // @ts-ignore
 import html2Pdf from 'html-pdf-node';
 import { Response } from "express";
-import { findOne } from "../helpers/db";
+import { findOne, upsert } from "../helpers/db";
 import notes from "../models/notes";
 import saleInvoice from "../models/saleInvoice";
 import proformaInvoice from "../models/proformaInvoice";
@@ -14,6 +14,7 @@ import moment from "moment";
 import { Types } from 'mongoose'
 // @ts-ignore
 import { numberToWords } from 'amount-to-words'
+import partyInvoices from "../models/partyInvoices";
 
 interface category {
     name: string,
@@ -51,6 +52,10 @@ export default class InvoiceController extends Controller {
             const fromParty = await findOne(party, { _id: invoiceData.billedFrom })
             const toParty = await findOne(party, { _id: invoiceData.billedTo })
             let products = [];
+            const totalCount = await partyInvoices.count({fromParty: invoiceData.billedFrom})
+            const invoiceNo = fromParty.name.split(' ').reduce((prev: string, current: string) => {
+                return prev.substr(0, 1) + current.substr(0, 1)       
+            }, '') + '-' + (totalCount + 1)
             if (type === 'DELIVERY') {
                 products = await notes.aggregate([
                     {
@@ -105,16 +110,16 @@ export default class InvoiceController extends Controller {
                         $match: { _id: new Types.ObjectId(invoiceId) }
                     },
                     {
-                        $lookup: {
-                            from: 'items',
-                            localField: 'items.productId',
-                            foreignField: '_id',
-                            as: 'product'
+                        $addFields: {
+                            products: '$items'
                         }
                     },
                     {
-                        $addFields: {
-                            products: '$items'
+                        $lookup: {
+                            from: 'products',
+                            localField: 'products.productId',
+                            foreignField: '_id',
+                            as: 'product'
                         }
                     },
                     {
@@ -127,13 +132,19 @@ export default class InvoiceController extends Controller {
                     },
                 ])
             }
+            console.log(JSON.stringify(products))
 
             const product = products[0].products;
-            const actualProducts = Array.from(new Set(product.map((val: any) => { return val.productId.toString() })))
-                .map(vals => { return product.find((val2: any) => { return val2.productId.equals(vals) }) })
+            let actualProducts = Array.from(new Set(product.map((val: any) => { return val.productId.toString() })))
+            .map(vals => { return product.find((val2: any) => { return val2.productId.equals(vals) }) })
             const invoiceFile = await fs.promises.readFile(path.join(__dirname, '../templates', 'invoice.html'))
             const template = handlebar.compile(invoiceFile.toString());
             console.log(actualProducts)
+            if(type === 'DELIVERY') {
+                actualProducts = actualProducts.map(val => {
+                    return {...val, rate: val.prices, discount: 0}
+                })
+            }
             let totalAmountCache = 0
             const data: any = {
                 invoiceTitle: type,
@@ -143,8 +154,8 @@ export default class InvoiceController extends Controller {
                 billedFromGST: fromParty.gstNumber,
                 billedFromState: fromParty.state,
                 billedToState: toParty.state,
-
-                gstNo: 'Sample no',
+                deliveryNoteDate: invoiceData.receiptDate ? moment(invoiceData.receiptDate).format('DD-MMM-YY') : '',
+                invoiceNo: invoiceNo,
                 invoiceDate: moment(new Date).format('DD-MMM-YY'),
                 dispatchedThrough: invoiceData.dispatchThrough || '',
                 billedToName: toParty.name,
@@ -198,6 +209,7 @@ export default class InvoiceController extends Controller {
 
             const pdfBuffer = await html2Pdf.generatePdf({ content: result }, { format: 'A4' })
             await fs.promises.writeFile(path.join(__dirname, '../templates', 'sample.pdf'), pdfBuffer)
+            await upsert(partyInvoices, {fromParty: invoiceData.billedFrom, invoiceNo})
             this.res.sendFile(path.join(__dirname, '../templates', 'sample.pdf'))
         }
         catch (err: any) {
