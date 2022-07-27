@@ -12,6 +12,8 @@ import proformaInvoice from "../models/proformaInvoice";
 import party from "../models/party";
 import moment from "moment";
 import { Types } from 'mongoose'
+// @ts-ignore
+import { numberToWords } from 'amount-to-words'
 
 interface category {
     name: string,
@@ -131,31 +133,69 @@ export default class InvoiceController extends Controller {
                 .map(vals => { return product.find((val2: any) => { return val2.productId.equals(vals) }) })
             const invoiceFile = await fs.promises.readFile(path.join(__dirname, '../templates', 'invoice.html'))
             const template = handlebar.compile(invoiceFile.toString());
-            const data = {
+            console.log(actualProducts)
+            let totalAmountCache = 0
+            const data: any = {
                 invoiceTitle: type,
                 billedFromName: fromParty.name,
                 billedFromAddress: fromParty.address,
                 billedFromCity: fromParty.state,
                 billedFromGST: fromParty.gstNumber,
+                billedFromState: fromParty.state,
+                billedToState: toParty.state,
+
                 gstNo: 'Sample no',
                 invoiceDate: moment(new Date).format('DD-MMM-YY'),
                 dispatchedThrough: invoiceData.dispatchThrough || '',
                 billedToName: toParty.name,
                 billedToAddress: toParty.address,
                 billedToContact: toParty.phone,
-                tableData: 
-                actualProducts.map((val, index) => {
-                    return {
-                        sNo: index + 1, description: val.productData.description, hsn: val.productData.hsnCode, quantity: val.quantity, rateWithTax: val.rate + val.taxableAmount, rate: val.rate, per: 10, disc: val.discount, amount: val.quantity * (val.rate + val.taxableAmount)
-                    }
-                }),
+                tableData:
+                    actualProducts.map((val, index) => {
+                        const amountBeforeDic = val.quantity * (val.rate + val.taxableAmount)
+                        const amount = amountBeforeDic - (amountBeforeDic * val.discount / 100)
+                        totalAmountCache += amount;
+                        return {
+                            sNo: index + 1, csgst: (amount * 14) / 100, igst: (amount * 28) / 100, description: val.productData.description, hsn: val.productData.hsnCode, quantity: val.quantity, rateWithTax: val.rate + val.taxableAmount, rate: val.rate, per: 10, disc: val.discount, amount
+                        }
+                    }),
                 totalNumber: actualProducts.reduce((pre, next) => {
-                    return pre.quantity + next.quantity
-                }, [0]), totalAmount: actualProducts.reduce((pre, next) => {
-                    return pre.quantity * (pre.rate + pre.taxableAmount) + next.quantity * (next.rate + next.taxableAmount)
-                }, [0]), totalAmountWords: 'Pending feature', companyPan: 'Company Pan pending'
+                    return pre.quantity ? pre.quantity : 0 + next.quantity
+                }, 0),
+                companyPan: fromParty.companyPan,
+                bankName: fromParty.bankName,
+                account: fromParty.accountNumber,
+                brank: fromParty.branch
             }
+            let taxApplied = 0;
+            if (fromParty.state.toLowerCase() === toParty.state.toLowerCase()) {
+                data.tableData.push({
+                    sNo: '', description: 'CGST', hsn: '', quantity: '', rateWithTax: '', rate: '', per: '', disc: '', amount: totalAmountCache + (14 * totalAmountCache / 100)
+                })
+                data.tableData.push({
+                    sNo: '', description: 'SGST', hsn: '', quantity: '', rateWithTax: '', rate: '', per: '', disc: '', amount: totalAmountCache + (14 * totalAmountCache / 100)
+                })
+                taxApplied += 2 * (14 * totalAmountCache / 100)
+                data.centralTax = (14 * totalAmountCache / 100)
+                data.stateTax = (14 * totalAmountCache / 100)
+            } else {
+                data.tableData.push({
+                    sNo: '', description: 'IGST', hsn: '', quantity: '', rateWithTax: '', rate: '', per: '', disc: '', amount: totalAmountCache + (28 * totalAmountCache / 100)
+                })
+                taxApplied += (28 * totalAmountCache / 100)
+                data.iTax = (28 * totalAmountCache / 100)
+            }
+            data.totalAmount = Math.round(totalAmountCache + taxApplied)
+            data.totalAmountWords = numberToWords(Math.round(totalAmountCache + taxApplied))
+            data.taxableValue = totalAmountCache;
+            data.totalTax = (28 * totalAmountCache / 100)
+            data.tableData.push({
+                sNo: '', description: 'roundOff', hsn: '', quantity: '', rateWithTax: '', rate: '', per: '', disc: '', amount: (Math.round(totalAmountCache + taxApplied) - (totalAmountCache + taxApplied)).toFixed(2)
+            })
+            data.taxSlab = data.tableData.filter((val: any) => {return val.sNo})
             const result = template(data)
+            console.log(data.tableData)
+
             const pdfBuffer = await html2Pdf.generatePdf({ content: result }, { format: 'A4' })
             await fs.promises.writeFile(path.join(__dirname, '../templates', 'sample.pdf'), pdfBuffer)
             this.res.sendFile(path.join(__dirname, '../templates', 'sample.pdf'))

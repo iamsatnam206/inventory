@@ -15,14 +15,14 @@
 	</head>
 	<body><center>
 		<table>
-		<caption><h3>{{invoiceTitle}}</h3></caption>
+		<caption><h3>{{invoiceTitle}} INVOICE</h3></caption>
 		<tr>
 			<td rowspan="4" colspan="2"><p>
 <strong>{{billedFromName}}</strong><br/>
 {{billedFromAddress}}
 {{billedFromCity}}
 GSTIN/UIN: {{billedFromGST}}
-State Name : Haryana, Code : 06
+State Name : {{billedFromState}}, Code : 06
             </p></td>
 			<td style="width:25%">Invoice No.
                 <strong>{{gstNo}}</strong></td>
@@ -48,7 +48,7 @@ Consignee (Ship to)
 <strong>{{billedToName}}</strong>
 {{billedToAddress}}
 GSTIN/UIN : {{billedToGST}}
-State Name : Haryana, Code : 06
+State Name : {{billedToState}}, Code : 06
 Contact : {{billedToContact}}
             </p></td>
             <td colspan="2" style="height:100px;width: 50%;"><p>
@@ -56,7 +56,7 @@ Buyer (Bill to)
 <strong>{{billedToName}}</strong>
 {{billedToAddress}}
 GSTIN/UIN : {{billedToGST}}
-State Name : Haryana, Code : 06
+State Name : {{billedToState}}, Code : 06
 Contact : {{billedToContact}}
             </p></td>
         </tr>
@@ -73,8 +73,8 @@ Contact : {{billedToContact}}
                 <th style="width:10%;text-align: center;">Disc. %</th>
                 <th style="width:12%;text-align: center;">Amount</th>
             </tr>
+            {{#each tableData}}
             <tr>
-                {{#each tableData}}
                 {{#with this}}
                 <td style="height:200px;text-align: left;">
                     {{sNo}}
@@ -105,8 +105,8 @@ Contact : {{billedToContact}}
                 </td>
 
                 {{/with}}
-                {{/each}}
             </tr>
+            {{/each}}
             <tr>
                 <td></td>
                 <td>{{total}}</td>
@@ -121,38 +121,62 @@ Contact : {{billedToContact}}
             </table>
             <table>
                 <tr>
-                    <td colspan="7" style="height:20px">Amount Chargeable (in words) <br/><strong>INR {{amountInWords}} Only</strong></td>
+                    <td colspan="7" style="height:20px">Amount Chargeable (in words) <br/><strong>INR {{totalAmountWords}} Only</strong></td>
                 </tr>
                 <tr>
                     <td rowspan="2" style="text-align: center;width: 30%;">HSN/SAC</td>
                     <td rowspan="2" style="text-align: center;">Taxable Value</td>
+                    {{#if iTax}}
+                    <td colspan="2" style="text-align: center;">Integrated Tax</td>
+                    {{else}}
                     <td colspan="2" style="text-align: center;">Central Tax</td>
                     <td colspan="2" style="text-align: center;">State Tax</td>
+                    {{/if}}
                     <td rowspan="2" style="text-align: center;">Total Tax amount</td>
                 </tr>
                 <tr>
+                    {{#if iTax}}
                     <td  style="text-align: center;">rate</td>
                     <td style="text-align: center;">amount</td>
-                    <td style="text-align: center;">rate</td>
+                    {{else}}
+                    <td  style="text-align: center;">rate</td>
                     <td style="text-align: center;">amount</td>
+                    <td  style="text-align: center;">rate</td>
+                    <td style="text-align: center;">amount</td>
+                    {{/if}}
                 </tr>
+                {{#each taxSlab}}
+                {{#with this}}
                 <tr>
-                    <td style="text-align: left;">85071000</td>
-                    <td style="text-align: right;">10,431.26</td>
+                    <td style="text-align: left;">{{hsn}}</td>
+                    <td style="text-align: right;">{{amount}}</td>
+                    {{#if iTax}}
+                    <td style="text-align: right;">28%</td>
+                    <td style="text-align: right;">{{igst}}</td>
+                    {{else}}
                     <td style="text-align: right;">14%</td>
-                    <td style="text-align: right;">1,460.38</td>
+                    <td style="text-align: right;">{{csgst}}</td>
                     <td style="text-align: right;">14%</td>
-                    <td style="text-align: right;">1,460.38</td>
-                    <td style="text-align: right;">2,920.76</td>
+                    <td style="text-align: right;">{{csgst}}</td>
+                    {{/if}}
+                    <td style="text-align: right;">{{igst}}</td>
                 </tr>
+                {{/with}}
+                {{/each}}
+
                 <tr>
                     <td style="text-align: right;"><strong>Total</strong></td>
-                    <td style="text-align: right;"><strong>10,431.26</strong></td>
+                    <td style="text-align: right;"><strong>{{taxableValue}}</strong></td>
+                    {{#if iTax}}
                     <td style="text-align: right;"></td>
-                    <td style="text-align: right;"><strong>1,460.38</strong></td>
+                    <td style="text-align: right;"><strong>{{iTax}}</strong></td>
+                    {{else}}
                     <td style="text-align: right;"></td>
-                    <td style="text-align: right;"><strong>1,460.38</strong></td>
-                    <td style="text-align: right;"><strong>2,920.76</strong></td>
+                    <td style="text-align: right;"><strong>{{centralTax}}</strong></td>
+                    <td style="text-align: right;"></td>
+                    <td style="text-align: right;"><strong>{{stateTax}}</strong></td>
+                    {{/if}}
+                    <td style="text-align: right;"><strong>{{totalAmount}}</strong></td>
                 </tr>
                 <tr>
                     <td colspan="4" style="width:55%">
@@ -175,9 +199,9 @@ HDFC BANK- A/C NO. 50200034070680 , IFSC
                     <td colspan="3" style="width:45%">
                         <pre>
 Company's Bank Details
-Bank Name : <strong>Kotak Mahindra</strong> 
-BankA/c No. : <strong>9312246977</strong>
-Branch & IFS Code : <strong>Sector-12,Karnal & KKBK0000295</strong>
+Bank Name : <strong>{{bankName}}</strong> 
+BankA/c No. : <strong>{{accountNumber}}</strong>
+Branch : <strong>{{branch}}</strong>
                         </pre>
                     </td>
                 </tr>
