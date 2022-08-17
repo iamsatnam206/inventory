@@ -8,7 +8,7 @@ import { Request } from "express";
 import StatementController from "./statements";
 import { Types } from "mongoose";
 import { getOtp } from "../helpers/utility";
-import saleInvoice from "../models/saleInvoice";
+// import saleInvoice from "../models/saleInvoice";
 
 interface saleInvoice {
     billedFrom: string,
@@ -34,7 +34,7 @@ interface saleInvoiceSerial {
 
 @Tags('Invoice/Sale')
 @Route("invoice/sale")
-export default class PartyController extends Controller {
+export default class SaleController extends Controller {
     request: Request;
 
     constructor(request: Request) {
@@ -388,7 +388,7 @@ export default class PartyController extends Controller {
         }
     }
 
-    @Patch("/updateSerialNumber")
+    @Post("/updateSerialNumber")
     public async updateSerialNumber(@Body() request: { oldSerialNumber: string, newSerialNumber: string }): Promise<Response> {
         try {
             const { oldSerialNumber, newSerialNumber} = request;
@@ -397,7 +397,7 @@ export default class PartyController extends Controller {
                 throw new Error('No such entry found')
             }
             const [replaceable] = theOne.items;
-            const updated = await saleInvoice.updateOne({
+            const updated = await SaleInvoice.updateOne({
                 _id: replaceable._id, "products.serialNumber": oldSerialNumber
             }, {
                 $set: {"products.$.serialNumber": newSerialNumber}

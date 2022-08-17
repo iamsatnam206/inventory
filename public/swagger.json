@@ -697,11 +697,7 @@
 				"tags": [
 					"Party"
 				],
-				"security": [
-					{
-						"Bearer": []
-					}
-				],
+				"security": [],
 				"parameters": [],
 				"requestBody": {
 					"required": true,
@@ -838,6 +834,37 @@
 				]
 			}
 		},
+		"/party/delete": {
+			"delete": {
+				"operationId": "Delete",
+				"responses": {
+					"200": {
+						"description": "Ok",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/Response"
+								}
+							}
+						}
+					}
+				},
+				"tags": [
+					"Party"
+				],
+				"security": [],
+				"parameters": [
+					{
+						"in": "query",
+						"name": "id",
+						"required": true,
+						"schema": {
+							"type": "string"
+						}
+					}
+				]
+			}
+		},
 		"/product/save": {
 			"post": {
 				"operationId": "Save",
@@ -934,6 +961,37 @@
 		"/product/get": {
 			"get": {
 				"operationId": "Get",
+				"responses": {
+					"200": {
+						"description": "Ok",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/Response"
+								}
+							}
+						}
+					}
+				},
+				"tags": [
+					"Product"
+				],
+				"security": [],
+				"parameters": [
+					{
+						"in": "query",
+						"name": "id",
+						"required": true,
+						"schema": {
+							"type": "string"
+						}
+					}
+				]
+			}
+		},
+		"/product/delete": {
+			"delete": {
+				"operationId": "Delete",
 				"responses": {
 					"200": {
 						"description": "Ok",
@@ -1544,6 +1602,50 @@
 								},
 								"required": [
 									"saleInvoiceId"
+								],
+								"type": "object"
+							}
+						}
+					}
+				}
+			}
+		},
+		"/invoice/sale/updateSerialNumber": {
+			"post": {
+				"operationId": "UpdateSerialNumber",
+				"responses": {
+					"200": {
+						"description": "Ok",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/Response"
+								}
+							}
+						}
+					}
+				},
+				"tags": [
+					"Invoice/Sale"
+				],
+				"security": [],
+				"parameters": [],
+				"requestBody": {
+					"required": true,
+					"content": {
+						"application/json": {
+							"schema": {
+								"properties": {
+									"newSerialNumber": {
+										"type": "string"
+									},
+									"oldSerialNumber": {
+										"type": "string"
+									}
+								},
+								"required": [
+									"newSerialNumber",
+									"oldSerialNumber"
 								],
 								"type": "object"
 							}
