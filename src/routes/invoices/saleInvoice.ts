@@ -81,4 +81,14 @@ Route.post('/sale/approveInvoice', async (req: Request, res: Response) => {
     return res.send(respsone)
 });
 
+Route.patch('/sale/updateSerialNumber', async (req: Request, res: Response) => {
+    const body = req.body;
+    const { oldSerialNumber, newSerialNumber } = body;
+    const controller = new SaleController(req);
+    const respsone = await controller.updateSerialNumber({
+        oldSerialNumber, newSerialNumber
+    });
+    return res.send(respsone)
+});
+
 module.exports = Route;

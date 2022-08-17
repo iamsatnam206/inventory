@@ -1,9 +1,17 @@
-import { Route, Tags, Post, Get, Controller, Body, Query, Security } from "tsoa";
+import { Route, Tags, Post, Get, Controller, Body, Query, Security, Delete } from "tsoa";
 import { Response } from '../models/interfaces';
 import PartyModel from '../models/party';
 import _ from 'lodash';
 import { signToken, verifyToken } from "../helpers/jwt";
-import { findOne, getAll, upsert } from "../helpers/db";
+import { deleteById, findOne, getAll, upsert } from "../helpers/db";
+import saleInvoice from "../models/saleInvoice";
+import purchaseInvoice from "../models/purchaseInvoice";
+import proformaInvoice from "../models/proformaInvoice";
+import notesModel from "../models/notes";
+import receiptModel from "../models/receipt";
+import party from "../models/party";
+
+
 const { genHash, verifyHash } = require('../helpers/utility')
 
 interface partySave {
@@ -31,7 +39,7 @@ interface partyLogin {
 @Route("party")
 export default class PartyController extends Controller {
     @Post("/save")
-    @Security('Bearer')
+    // @Security('Bearer')
     public async save(@Body() request: partySave): Promise<Response> {
         try {
             const cloned: Partial<partySave> = { ...request };
@@ -149,6 +157,38 @@ export default class PartyController extends Controller {
         catch (err: any) {
             console.log(err);
 
+            return {
+                data: null,
+                error: err.message ? err.message : err,
+                message: '',
+                status: 400
+            }
+        }
+    }
+    @Delete("/delete")
+    public async delete(@Query() id: string): Promise<Response> {
+        try {
+            const theOne = await findOne(party, {_id: id});
+            if(theOne && theOne.openingBalance > 0) {
+                throw new Error('Balance of party is above 0.')
+            }
+            const saleInvoiceExistence = await findOne(saleInvoice, {$or: [{billedFrom: id}, {billedTo: id}]});
+            const purchaseInvoiceExistence = await findOne(purchaseInvoice, {$or: [{billedFrom: id}, {billedTo: id}]});
+            const proformaInvoiceExistence = await findOne(proformaInvoice, {$or: [{billedFrom: id}, {billedTo: id}]});
+            const notesExistence = await findOne(notesModel, {$or: [{fromParty: id}, {toParty: id}]});
+            const receiptExistence = await findOne(receiptModel, {$or: [{fromParty: id}, {toParty: id}]});
+            if(saleInvoiceExistence || purchaseInvoiceExistence || proformaInvoiceExistence || notesExistence || receiptExistence) {
+                throw new Error('Party cannot be deleted as it\'s enteries exists!')
+            }
+            const deleted = await deleteById(party, id);
+            return {
+                data: deleted,
+                error: '',
+                message: 'Successfully deleted!',
+                status: 200
+            }
+        }
+        catch (err: any) {
             return {
                 data: null,
                 error: err.message ? err.message : err,

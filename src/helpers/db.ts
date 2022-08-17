@@ -28,3 +28,13 @@ export const upsert = async(model: Model<any>, data: any, id?: string) => {
     }
     return dataRes;
 }
+
+export const deleteById = async(model: Model<any>, id: string) => {
+    const deleteResp = await model.deleteOne({_id: id})
+    
+    return deleteResp.deletedCount > 0 ? true : false
+}
+export const deleteMany = async(model: Model<any>, query: object) => {
+    const deleteResp = await model.deleteMany(query)
+    return deleteResp.deletedCount
+}

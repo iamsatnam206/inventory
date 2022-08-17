@@ -1,7 +1,12 @@
-import { Route, Tags, Post, Path, Controller, Body, Get, Query } from "tsoa";
-import { getAll, upsert } from "../helpers/db";
+import { Route, Tags, Post, Path, Controller, Body, Get, Query, Delete } from "tsoa";
+import { deleteById, findOne, getAll, upsert } from "../helpers/db";
 import { Response } from '../models/interfaces';
 import ProductModel from '../models/products';
+import proformaInvoice from "../models/proformaInvoice";
+import purchaseInvoice from "../models/purchaseInvoice";
+import saleInvoice from "../models/saleInvoice";
+import notesModel from "../models/notes";
+import products from "../models/products";
 
 interface product {
     itemName: string,
@@ -83,6 +88,34 @@ export default class PartyController extends Controller {
         catch (err: any) {
             console.log(err);
 
+            return {
+                data: null,
+                error: err.message ? err.message : err,
+                message: '',
+                status: 400
+            }
+        }
+    }
+
+    @Delete("/delete")
+    public async delete(@Query() id: string): Promise<Response> {
+        try {
+            const saleInvoiceExistence = await findOne(saleInvoice, {products: {$elemMatch: {productId: id}}});
+            const purchaseInvoiceExistence = await findOne(purchaseInvoice, {products: {$elemMatch: {productId: id}}});
+            const proformaInvoiceExistence = await findOne(proformaInvoice, {items: {$elemMatch: {productId: id}}});
+            const notesExistence = await findOne(notesModel, {products: {$elemMatch: {productId: id}}});
+            if(saleInvoiceExistence || purchaseInvoiceExistence || proformaInvoiceExistence || notesExistence) {
+                throw new Error('Product cannot be deleted as it\'s enteries exists!')
+            }
+            const deleted = await deleteById(products, id);
+            return {
+                data: deleted,
+                error: '',
+                message: 'Successfully deleted!',
+                status: 200
+            }
+        }
+        catch (err: any) {
             return {
                 data: null,
                 error: err.message ? err.message : err,

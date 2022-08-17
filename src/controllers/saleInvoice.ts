@@ -1,4 +1,4 @@
-import { Route, Tags, Post, Get, Controller, Body, Query, Security } from "tsoa";
+import { Route, Tags, Post, Get, Controller, Body, Query, Patch } from "tsoa";
 import { Response } from '../models/interfaces';
 import SaleInvoice from '../models/saleInvoice';
 import ProductsModel from '../models/products';
@@ -8,6 +8,7 @@ import { Request } from "express";
 import StatementController from "./statements";
 import { Types } from "mongoose";
 import { getOtp } from "../helpers/utility";
+import saleInvoice from "../models/saleInvoice";
 
 interface saleInvoice {
     billedFrom: string,
@@ -378,6 +379,38 @@ export default class PartyController extends Controller {
         catch (err: any) {
             console.log(err);
 
+            return {
+                data: null,
+                error: err.message ? err.message : err,
+                message: '',
+                status: 400
+            }
+        }
+    }
+
+    @Patch("/updateSerialNumber")
+    public async updateSerialNumber(@Body() request: { oldSerialNumber: string, newSerialNumber: string }): Promise<Response> {
+        try {
+            const { oldSerialNumber, newSerialNumber} = request;
+            const theOne = await getAll(SaleInvoice, {products: {$elemMatch: {serialNumber: oldSerialNumber.trim()}}});
+            if(theOne.items.length === 0) {
+                throw new Error('No such entry found')
+            }
+            const [replaceable] = theOne.items;
+            const updated = await saleInvoice.updateOne({
+                _id: replaceable._id, "products.serialNumber": oldSerialNumber
+            }, {
+                $set: {"products.$.serialNumber": newSerialNumber}
+            }, {lean: true, new: true})
+            
+            return {
+                data: updated,
+                error: '',
+                message: 'Success',
+                status: 200
+            }
+        }
+        catch (err: any) {
             return {
                 data: null,
                 error: err.message ? err.message : err,

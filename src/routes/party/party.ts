@@ -1,6 +1,6 @@
 import express, { Request, Response, NextFunction } from 'express'
 import PartyController from '../../controllers/party';
-import { OtherAuth } from '../../middlewares/auth';
+// import { OtherAuth } from '../../middlewares/auth';
 const Route = express.Router();
 
 Route.post('/save', async (req: Request, res: Response, next: NextFunction) => {
@@ -17,19 +17,19 @@ Route.post('/save', async (req: Request, res: Response, next: NextFunction) => {
     
     } = body;
     const controller = new PartyController();
-    if (id) {
-        await OtherAuth(req, res, () => {
-        })
-        if (req.body.user._id !== id) {
-            return res.send({
-                data: null,
-                error: 'Unauthorized',
-                message: '',
-                status: 400
-            })
-        }
+    // if (id) {
+    //     await OtherAuth(req, res, () => {
+    //     })
+    //     if (req.body.user._id !== id) {
+    //         return res.send({
+    //             data: null,
+    //             error: 'Unauthorized',
+    //             message: '',
+    //             status: 400
+    //         })
+    //     }
 
-    }
+    // }
     const respsone = await controller.save({
         name,
         address,
@@ -70,6 +70,22 @@ Route.get('/get', async (req: Request, res: Response) => {
     if (query) {
         const respsone = await controller.get(query.toString());
         return res.send(respsone)
+    }
+});
+
+Route.delete('/delete', async (req: Request, res: Response) => {
+    const query = req.query.id;
+    const controller = new PartyController();
+    if (query) {
+        const respsone = await controller.delete(query.toString());
+        return res.send(respsone)
+    } else {
+        res.send({
+            data: null,
+            error: 'Please enter a valid id',
+            message: '',
+            status: 400
+        })
     }
 });
 
