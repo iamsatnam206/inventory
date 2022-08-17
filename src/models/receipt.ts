@@ -12,7 +12,8 @@ const name = new Schema(
         toParty: { type: Schema.Types.ObjectId, required: true },
         amount: {type: Number, default: 0, required: true},
         refNo: {type: String, default: ''},
-        isPayment: {type: Boolean, default: false, required: true}
+        isPayment: {type: Boolean, default: false, required: true},
+        status: {type: String, enum: ['ACTIVE', 'CANCELLED'], default: 'ACTIVE'}
     },
     { versionKey: false, timestamps: true }
 );

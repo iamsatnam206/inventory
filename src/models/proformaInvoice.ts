@@ -17,6 +17,7 @@ const name = new Schema(
         approved: {type: Boolean, default: false, required: true},
         shippingAddress: {type: String, required: true},
         totalAmount: {type: Number, default: 0},
+        status: {type: String, enum: ['ACTIVE', 'CANCELLED'], default: 'ACTIVE'}
     },
     { versionKey: false, timestamps: true }
 );

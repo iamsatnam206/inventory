@@ -1,9 +1,9 @@
-import { Route, Tags, Post, Get, Controller, Body, Query, Patch } from "tsoa";
+import { Route, Tags, Post, Get, Controller, Body, Query, Patch, Delete } from "tsoa";
 import { Response } from '../models/interfaces';
 import SaleInvoice from '../models/saleInvoice';
 import ProductsModel from '../models/products';
 
-import { getAll, getById, upsert } from "../helpers/db";
+import { deleteById, getAll, getById, upsert } from "../helpers/db";
 import { Request } from "express";
 import StatementController from "./statements";
 import { Types } from "mongoose";
@@ -419,4 +419,51 @@ export default class SaleController extends Controller {
             }
         }
     }
+
+
+    @Patch("/cancelSaleInvoice")
+    public async cancelSaleInvoice(@Body() request: { id: string, cancel: boolean }): Promise<Response> {
+        try {
+            const { id, cancel} = request;
+            const updated = await upsert(SaleInvoice, {status: cancel ? 'CANCELLED' : 'ACTIVE'}, id)
+            
+            return {
+                data: updated,
+                error: '',
+                message: 'Success',
+                status: 200
+            }
+        }
+        catch (err: any) {
+            return {
+                data: null,
+                error: err.message ? err.message : err,
+                message: '',
+                status: 400
+            }
+        }
+    }
+
+    @Delete("/delete")
+    public async delete(@Query() id: string): Promise<Response> {
+        try {
+            const deleted = await deleteById(SaleInvoice, id);
+            return {
+                data: deleted,
+                error: '',
+                message: 'Successfully deleted!',
+                status: 200
+            }
+        }
+        catch (err: any) {
+            return {
+                data: null,
+                error: err.message ? err.message : err,
+                message: '',
+                status: 400
+            }
+        }
+    }
+
+    
 }

@@ -38,4 +38,30 @@ Route.get('/get', async (req: Request, res: Response) => {
     }
 });
 
+Route.patch('/cancelReceipt', async (req: Request, res: Response) => {
+    const body = req.body;
+    const { id, cancel } = body;
+    const controller = new ReceiptController(req);
+    const respsone = await controller.cancelReceipt({
+        id, cancel
+    });
+    return res.send(respsone)
+});
+
+Route.delete('/delete', async (req: Request, res: Response) => {
+    const query = req.query.id;
+    const controller = new ReceiptController(req);
+    if (query) {
+        const respsone = await controller.delete(query.toString());
+        return res.send(respsone)
+    } else {
+        res.send({
+            data: null,
+            error: 'Please enter a valid id',
+            message: '',
+            status: 400
+        })
+    }
+});
+
 module.exports = Route;

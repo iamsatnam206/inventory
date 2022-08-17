@@ -14,7 +14,8 @@ const name = new Schema(
         products: {type: [orderItemSchema], default: [], required: true},
         shippingAddress: {type: String, default:''},
         totalAmount: {type: Number, default: 0},
-        isDeliveryNote: {type: Boolean, default: false}
+        isDeliveryNote: {type: Boolean, default: false},
+        status: {type: String, enum: ['ACTIVE', 'CANCELLED'], default: 'ACTIVE'}
     },
     { versionKey: false, timestamps: true }
 );

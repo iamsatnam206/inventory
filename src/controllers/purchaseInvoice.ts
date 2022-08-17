@@ -1,10 +1,10 @@
-import { Route, Tags, Post, Get, Controller, Body, Query, Security } from "tsoa";
+import { Route, Tags, Post, Get, Controller, Body, Query, Patch, Delete } from "tsoa";
 import { Response } from '../models/interfaces';
 import PurchaseInvoice from '../models/purchaseInvoice';
 import ProductsModel from '../models/products';
 
 
-import { getAll, upsert } from "../helpers/db";
+import { deleteById, getAll, upsert } from "../helpers/db";
 import { Request } from "express";
 import StatementController from "./statements";
 
@@ -194,6 +194,50 @@ export default class PartyController extends Controller {
         catch (err: any) {
             console.log(err);
 
+            return {
+                data: null,
+                error: err.message ? err.message : err,
+                message: '',
+                status: 400
+            }
+        }
+    }
+
+    @Patch("/cancelPurchaseInvoice")
+    public async cancelPurchaseInvoice(@Body() request: { id: string, cancel: boolean }): Promise<Response> {
+        try {
+            const { id, cancel} = request;
+            const updated = await upsert(PurchaseInvoice, {status: cancel ? 'CANCELLED' : 'ACTIVE'}, id)
+            
+            return {
+                data: updated,
+                error: '',
+                message: 'Success',
+                status: 200
+            }
+        }
+        catch (err: any) {
+            return {
+                data: null,
+                error: err.message ? err.message : err,
+                message: '',
+                status: 400
+            }
+        }
+    }
+
+    @Delete("/delete")
+    public async delete(@Query() id: string): Promise<Response> {
+        try {
+            const deleted = await deleteById(PurchaseInvoice, id);
+            return {
+                data: deleted,
+                error: '',
+                message: 'Successfully deleted!',
+                status: 200
+            }
+        }
+        catch (err: any) {
             return {
                 data: null,
                 error: err.message ? err.message : err,

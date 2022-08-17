@@ -20,7 +20,7 @@ const name = new Schema(
         dispatchThrough: {type: String, required: true},
         products: {type: [orderItemSchema], default: [], required: true},
         isBlacked: {type: Boolean, default: false},
-        status: {type: String, enum: ['PENDING', 'APPROVED', 'CONFIRM'], default: 'PENDING'}
+        status: {type: String, enum: ['PENDING', 'APPROVED', 'CONFIRM', 'CANCELLED'], default: 'PENDING'}
     },
     { versionKey: false, timestamps: true }
 );

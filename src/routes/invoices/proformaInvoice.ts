@@ -37,10 +37,31 @@ Route.get('/proforma/get', async (req: Request, res: Response) => {
         return res.send(respsone)
     }
 });
-// Route.get('/get', (req: Request, res: Response) => {
-//     const controller = new PartyController();
-//     const respsone = controller.login();
-//     return res.send(respsone)
-// });
+
+Route.patch('/proforma/cancelProformaInvoice', async (req: Request, res: Response) => {
+    const body = req.body;
+    const { id, cancel } = body;
+    const controller = new InvoiceController(req);
+    const respsone = await controller.cancelProformaInvoice({
+        id, cancel
+    });
+    return res.send(respsone)
+});
+
+Route.delete('/proforma/delete', async (req: Request, res: Response) => {
+    const query = req.query.id;
+    const controller = new InvoiceController(req);
+    if (query) {
+        const respsone = await controller.delete(query.toString());
+        return res.send(respsone)
+    } else {
+        res.send({
+            data: null,
+            error: 'Please enter a valid id',
+            message: '',
+            status: 400
+        })
+    }
+});
 
 module.exports = Route;
