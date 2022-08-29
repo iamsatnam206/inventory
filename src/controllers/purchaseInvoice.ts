@@ -7,6 +7,7 @@ import ProductsModel from '../models/products';
 import { deleteById, getAll, upsert } from "../helpers/db";
 import { Request } from "express";
 import StatementController from "./statements";
+import { Types } from "mongoose";
 
 interface IPurchaseInvoice {
     billedFrom: string,
@@ -90,6 +91,9 @@ export default class PartyController extends Controller {
         try {
             // const getAllResponse = await getAll(PurchaseInvoice, {}, pageNumber, pageSize);
             const [getAllResponse] = await PurchaseInvoice.aggregate([
+                {
+                    $sort: {createdAt: -1}
+                },
                 // {
                 //     $match: { ...(status ? { status } : null), ...(isBlacked !== undefined ? {isBlacked} : null) }
                 // },
@@ -105,20 +109,44 @@ export default class PartyController extends Controller {
                             {
                                 $limit: pageSize
                             },
+
+                            {
+                                $unwind: "$products"
+                            },
+                            {
+                                $lookup: {
+                                    from: 'products',
+                                    localField: 'products.productId',
+                                    foreignField: '_id',
+                                    as: 'item'
+                                }
+                            },
+                            {
+                                $group: {
+                                    _id: "$_id",
+                                    billedFrom: {$first: "$billedFrom"},
+                                    billedTo: {$first: "$billedTo"},
+                                    invoiceDate: {$first: "$invoiceDate"},
+                                    createdAt: {$first: "$createdAt"},
+                                    products: {
+                                        $push: {
+                                            productDetails: {$first: "$item"},
+                                            amountWithoutTax: "$products.amountWithoutTax",
+                                            quantity: "$products.quantity",
+                                            productId: "$products.productId",
+                                            _id: "$products._id"
+                                        }
+                                    }
+                                }
+                            },
+
+
                             {
                                 $lookup: {
                                     from: 'parties',
                                     localField: 'billedFrom',
                                     foreignField: '_id',
                                     as: 'billedFrom'
-                                }
-                            },
-                            {
-                                $lookup: {
-                                    from: 'products',
-                                    localField: 'items.productId',
-                                    foreignField: '_id',
-                                    as: 'items.productSchema'
                                 }
                             },
                             {
@@ -183,7 +211,66 @@ export default class PartyController extends Controller {
     @Get("/get")
     public async get(@Query() id: string): Promise<Response> {
         try {
-            const getResponse = await PurchaseInvoice.findOne({ _id: id });
+            // const getResponse = await PurchaseInvoice.findOne({ _id: id });
+            const [getResponse] = await PurchaseInvoice.aggregate([
+                {
+                    $match: { _id: new Types.ObjectId(id) }
+                },
+                {
+                    $unwind: "$products"
+                },
+                {
+                    $lookup: {
+                        from: 'products',
+                        localField: 'products.productId',
+                        foreignField: '_id',
+                        as: 'item'
+                    }
+                },
+                {
+                    $group: {
+                        _id: "$_id",
+                        billedFrom: {$first: "$billedFrom"},
+                        billedTo: {$first: "$billedTo"},
+                        invoiceDate: {$first: "$invoiceDate"},
+                        createdAt: {$first: "$createdAt"},
+                        products: {
+                            $push: {
+                                productDetails: {$first: "$item"},
+                                amountWithoutTax: "$products.amountWithoutTax",
+                                quantity: "$products.quantity",
+                                productId: "$products.productId",
+                                _id: "$products._id"
+                            }
+                        }
+                    }
+                },
+
+
+                {
+                    $lookup: {
+                        from: 'parties',
+                        localField: 'billedFrom',
+                        foreignField: '_id',
+                        as: 'billedFrom'
+                    }
+                },
+                {
+                    $lookup: {
+                        from: 'parties',
+                        localField: 'billedTo',
+                        foreignField: '_id',
+                        as: 'billedTo'
+                    }
+                },
+                {
+                    $addFields: {
+                        billedFrom: { $arrayElemAt: ["$billedFrom", 0] },
+                        billedTo: { $arrayElemAt: ["$billedTo", 0] },
+                    }
+                },
+
+            ]).exec()
             return {
                 data: getResponse,
                 error: '',

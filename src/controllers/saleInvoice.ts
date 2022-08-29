@@ -107,6 +107,9 @@ export default class SaleController extends Controller {
             // }, pageNumber, pageSize);
             const getAllResponse = await SaleInvoice.aggregate([
                 {
+                    $sort: {createdAt: -1}
+                },
+                {
                     $match: { ...(status ? { status } : null), ...(isBlacked !== undefined ? {isBlacked} : null) }
                 },
                 {
@@ -121,6 +124,44 @@ export default class SaleController extends Controller {
                             {
                                 $limit: pageSize
                             },
+
+                            {
+                                $unwind: "$products"
+                            },
+                            {
+                                $lookup: {
+                                    from: 'products',
+                                    localField: 'products.productId',
+                                    foreignField: '_id',
+                                    as: 'item'
+                                }
+                            },
+                            {
+                                $group: {
+                                    _id: "$_id",
+                                    billedFrom: {$first: "$billedFrom"},
+                                    billedTo: {$first: "$billedTo"},
+                                    shippingAddress:{$first: "$shippingAddress"},
+                                    totalAmount: {$first: "$totalAmount"},
+                                    invoiceNo: {$first: "$invoiceNo"},
+                                    invoiceDate: {$first: "$invoiceDate"},
+                                    dispatchThrough: {$first: "$dispatchThrough"},
+                                    createdAt: {$first: "$createdAt"},
+                                    products: {
+                                        $push: {
+                                            productDetails: {$first: "$item"},
+                                            discount: "$products.discount",
+                                            rate: "$products.rate",
+                                            quantity: "$products.quantity",
+                                            productId: "$products.productId",
+                                            serialNumber: "$products.serialNumber",
+                                            taxableAmount: "$products.taxableAmount",
+                                            _id: "$products._id"
+                                        }
+                                    }
+                                }
+                            },
+
                             {
                                 $lookup: {
                                     from: 'parties',
@@ -137,19 +178,18 @@ export default class SaleController extends Controller {
                                     as: 'billedTo'
                                 }
                             },
-                            {
-                                $lookup: {
-                                    from: 'products',
-                                    localField: 'products.productId',
-                                    foreignField: '_id',
-                                    as: 'product'
-                                }
-                            },
+                            // {
+                            //     $lookup: {
+                            //         from: 'products',
+                            //         localField: 'products.productId',
+                            //         foreignField: '_id',
+                            //         as: 'product'
+                            //     }
+                            // },
                             {
                                 $addFields: {
                                     billedFrom: { $arrayElemAt: ["$billedFrom", 0] },
                                     billedTo: { $arrayElemAt: ["$billedTo", 0] },
-                                    'products.productData': '$product'
                                 }
                             },
                             {
@@ -206,6 +246,42 @@ export default class SaleController extends Controller {
                     $match: { _id: new Types.ObjectId(id) }
                 },
                 {
+                    $unwind: "$products"
+                },
+                {
+                    $lookup: {
+                        from: 'products',
+                        localField: 'products.productId',
+                        foreignField: '_id',
+                        as: 'item'
+                    }
+                },
+                {
+                    $group: {
+                        _id: "$_id",
+                        billedFrom: {$first: "$billedFrom"},
+                        billedTo: {$first: "$billedTo"},
+                        shippingAddress:{$first: "$shippingAddress"},
+                        totalAmount: {$first: "$totalAmount"},
+                        invoiceNo: {$first: "$invoiceNo"},
+                        invoiceDate: {$first: "$invoiceDate"},
+                        dispatchThrough: {$first: "$dispatchThrough"},
+                        createdAt: {$first: "$createdAt"},
+                        products: {
+                            $push: {
+                                productDetails: {$first: "$item"},
+                                discount: "$products.discount",
+                                rate: "$products.rate",
+                                quantity: "$products.quantity",
+                                productId: "$products.productId",
+                                serialNumber: "$products.serialNumber",
+                                taxableAmount: "$products.taxableAmount",
+                                _id: "$products._id"
+                            }
+                        }
+                    }
+                },
+                {
                     $lookup: {
                         from: 'parties',
                         localField: 'billedFrom',
@@ -222,22 +298,10 @@ export default class SaleController extends Controller {
                     }
                 },
                 {
-                    $lookup: {
-                        from: 'products',
-                        localField: 'products.productId',
-                        foreignField: '_id',
-                        as: 'product'
-                    }
-                },
-                {
                     $addFields: {
                         billedFrom: { $arrayElemAt: ["$billedFrom", 0] },
                         billedTo: { $arrayElemAt: ["$billedTo", 0] },
-                        'products.productData': {$first: '$product'}
                     }
-                },
-                {
-                    $project: {'product': 0}
                 },
             ]).exec()
             return {

@@ -4,6 +4,7 @@ import InvoiceModel from '../models/proformaInvoice';
 import { deleteById, getAll, upsert } from "../helpers/db";
 import { getOtp } from '../helpers/utility'
 import { Request } from "express";
+import { Types } from "mongoose";
 
 interface invoiceRequest {
     billedFrom: string,
@@ -66,6 +67,9 @@ export default class PartyController extends Controller {
                 //     $match: { ...(status ? { status } : null), ...(isBlacked !== undefined ? {isBlacked} : null) }
                 // },
                 {
+                    $sort: {createdAt: -1}
+                },
+                {
                     $facet: {
                         totalCount: [
                             { $count: 'totalItems' }
@@ -77,6 +81,48 @@ export default class PartyController extends Controller {
                             {
                                 $limit: pageSize
                             },
+                            // {
+                            //     $lookup: {
+                            //         from: 'products',
+                            //         localField: 'items.productId',
+                            //         foreignField: '_id',
+                            //         as: 'item'
+                            //     }
+                            // },
+                            {
+                                $unwind: "$items"
+                            },
+                            {
+                                $lookup: {
+                                    from: 'products',
+                                    localField: 'items.productId',
+                                    foreignField: '_id',
+                                    as: 'item'
+                                }
+                            },
+                            {
+                                $group: {
+                                    _id: "$_id",
+                                    orderNo: {$first: "$orderNo"},
+                                    billedFrom: {$first: "$billedFrom"},
+                                    billedTo: {$first: "$billedTo"},
+                                    shippingAddress:{$first: "$shippingAddress"},
+                                    totalAmount: {$first: "$totalAmount"},
+                                    userId: {$first: "$userId"},
+                                    approved: {$first: "$approved"},
+                                    status: {$first: "$status"},
+                                    createdAt: {$first: "$createdAt"},
+                                    items: {
+                                        $push: {
+                                            productDetails: {$first: "$item"},
+                                            discount: "$items.discount",
+                                            rate: "$items.rate",
+                                            quantity: "$items.quantity",
+                                            productId: "$items.productId"
+                                        }
+                                    }
+                                }
+                            },
                             {
                                 $lookup: {
                                     from: 'parties',
@@ -85,14 +131,35 @@ export default class PartyController extends Controller {
                                     as: 'billedFrom'
                                 }
                             },
-                            {
-                                $lookup: {
-                                    from: 'products',
-                                    localField: 'items.productId',
-                                    foreignField: '_id',
-                                    as: 'items.productSchema'
-                                }
-                            },
+                            // {
+                            //     $lookup: {
+                            //         from: 'products',
+                            //         let: { id: "$items.productId", rate: "$items.rate", quantity: "$items.quantity", discount: "$items.discount" },
+                            //         as: 'item',
+                            //         pipeline: [
+                            //             {
+                            //                 $match: {
+                            //                     $expr: {
+
+                            //                         $and: [
+                            //                             // { $eq: ['$$id', "$_id"] },
+                            //                         ]
+                            //                     }
+                            //                 }
+                            //             },
+                            //             // {
+                            //             //     $addFields: {
+                            //             //         rate: {$first: "$$rate"},
+                            //             //         productId: {$first: "$$id"},
+                            //             //         quantity: {$first: "$$quantity"},
+                            //             //         discount: {$first: "$$discount"}
+                            //             //     }
+                            //             // }
+                            //         ]
+                            //     }
+                            // },
+
+
                             {
                                 $lookup: {
                                     from: 'parties',
@@ -155,7 +222,73 @@ export default class PartyController extends Controller {
     @Get("/get")
     public async get(@Query() id: string): Promise<Response> {
         try {
-            const getResponse = await InvoiceModel.findOne({ _id: id });
+            // const getResponse = await InvoiceModel.findOne({ _id: id });
+            const [getResponse] = await InvoiceModel.aggregate([
+                {
+                    $match: {
+                        _id: new Types.ObjectId(id)
+                    }
+                },
+                {
+                    $unwind: "$items"
+                },
+                {
+                    $lookup: {
+                        from: 'products',
+                        localField: 'items.productId',
+                        foreignField: '_id',
+                        as: 'item'
+                    }
+                },
+                {
+                    $group: {
+                        _id: "$_id",
+                        orderNo: {$first: "$orderNo"},
+                        billedFrom: {$first: "$billedFrom"},
+                        billedTo: {$first: "$billedTo"},
+                        shippingAddress:{$first: "$shippingAddress"},
+                        totalAmount: {$first: "$totalAmount"},
+                        userId: {$first: "$userId"},
+                        approved: {$first: "$approved"},
+                        status: {$first: "$status"},
+                        createdAt: {$first: "$createdAt"},
+                        items: {
+                            $push: {
+                                productDetails: {$first: "$item"},
+                                discount: "$items.discount",
+                                rate: "$items.rate",
+                                quantity: "$items.quantity",
+                                productId: "$items.productId"
+                            }
+                        }
+                    }
+                },
+                {
+                    $lookup: {
+                        from: 'parties',
+                        localField: 'billedFrom',
+                        foreignField: '_id',
+                        as: 'billedFrom'
+                    }
+                },
+
+
+                {
+                    $lookup: {
+                        from: 'parties',
+                        localField: 'billedTo',
+                        foreignField: '_id',
+                        as: 'billedTo'
+                    }
+                },
+                {
+                    $addFields: {
+                        billedFrom: { $arrayElemAt: ["$billedFrom", 0] },
+                        billedTo: { $arrayElemAt: ["$billedTo", 0] },
+                    }
+                },
+
+            ]).exec()
             return {
                 data: getResponse,
                 error: '',
@@ -178,9 +311,9 @@ export default class PartyController extends Controller {
     @Patch("/cancelProformaInvoice")
     public async cancelProformaInvoice(@Body() request: { id: string, cancel: boolean }): Promise<Response> {
         try {
-            const { id, cancel} = request;
-            const updated = await upsert(InvoiceModel, {status: cancel ? 'CANCELLED' : 'ACTIVE'}, id)
-            
+            const { id, cancel } = request;
+            const updated = await upsert(InvoiceModel, { status: cancel ? 'CANCELLED' : 'ACTIVE' }, id)
+
             return {
                 data: updated,
                 error: '',
