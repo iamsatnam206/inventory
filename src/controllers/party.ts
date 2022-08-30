@@ -48,6 +48,8 @@ export default class PartyController extends Controller {
                 delete cloned.userName;
 
             } else {
+                // @ts-ignore
+                cloned.partyBalance = request.openingBalance;
                 const hashedPassword = await genHash(request.password);
                 cloned.password = hashedPassword
                 const theOne = await findOne(PartyModel, {gstNumber: request.gstNumber})

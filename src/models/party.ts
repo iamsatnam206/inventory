@@ -30,6 +30,7 @@ const party = new Schema(
         bankName: { type: String, required: false, },
         accountNumber: { type: String, required: false },
         branch: { type: String, required: false },
+        partyBalance: {type: Number, default: 0}
     },
     { versionKey: false, timestamps: true }
 );

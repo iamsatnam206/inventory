@@ -1,8 +1,10 @@
 import { Route, Tags, Post, Get, Controller, Body, Query, Patch, Delete } from "tsoa";
 import { Response } from '../models/interfaces';
 import ReceiptModel from '../models/receipt';
-import { deleteById, getAll, upsert } from "../helpers/db";
+import { deleteById, findOne, getAll, upsert } from "../helpers/db";
 import { Request } from "express";
+import accounts from "../models/accounts";
+import party from "../models/party";
 
 interface IReceipt {
     receiptDate: string,
@@ -44,6 +46,14 @@ export default class PartyController extends Controller {
                 refNo,
                 isPayment,
             }, id);
+            if(!id) {
+                await upsert(accounts, {billedFrom: fromParty, billedTo: toParty, type: 'RECEIPT', amount});
+                // party effect
+                const theOneFromParty = await findOne(party, {_id: fromParty})
+                const theOneToParty = await findOne(party, {_id: fromParty})
+                await upsert(party, {partyBalance: isPayment ? theOneFromParty.partyBalance - amount : theOneFromParty.partyBalance + amount}, fromParty)
+                await upsert(party, {partyBalance: isPayment ? theOneToParty.partyBalance + amount : theOneToParty.partyBalance - amount}, toParty)
+            }
             return {
                 data: saveResponse,
                 error: '',

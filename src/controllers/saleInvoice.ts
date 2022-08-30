@@ -8,6 +8,7 @@ import { Request } from "express";
 import StatementController from "./statements";
 import { Types } from "mongoose";
 import { getOtp } from "../helpers/utility";
+import accounts from "../models/accounts";
 // import saleInvoice from "../models/saleInvoice";
 
 interface saleInvoice {
@@ -76,6 +77,9 @@ export default class SaleController extends Controller {
                 totalAmount,
                 isBlacked
             }, id);
+            if(!id) {
+                await upsert(accounts, {billedFrom, billedTo, type: 'SALE', amount: totalAmount})
+            }
             return {
                 data: saveResponse,
                 error: '',

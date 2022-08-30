@@ -8,6 +8,7 @@ import { deleteById, getAll, upsert } from "../helpers/db";
 import { Request } from "express";
 import StatementController from "./statements";
 import { Types } from "mongoose";
+import accounts from "../models/accounts";
 
 interface IPurchaseInvoice {
     billedFrom: string,
@@ -66,6 +67,12 @@ export default class PartyController extends Controller {
                     quantityAdded: val.quantity, quantitySubtracted: 0, productId: val.productId, fromParty: saveResponse.billedFrom, toParty: saveResponse.billedTo
                 }
             }))
+
+            if(!id) {
+                await upsert(accounts, {billedFrom, billedTo, type: 'PURCHASE', amount: products.reduce((prev, next) => {
+                    return prev + next.amountWithoutTax * next.quantity
+                }, 0)})
+            }
             return {
                 data: saveResponse,
                 error: '',
