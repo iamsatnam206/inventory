@@ -55,12 +55,12 @@ export default class SaleController extends Controller {
                 products,
                 totalAmount,
                 isBlacked,
-                id } = request; 
+                id } = request;
             const invoiceNo = await getOtp(100000, 10000);
             const mappedProducts = products.map(val => {
                 const newArr = [];
-                for(let i = 0; i < val.quantity; i++) {
-                    newArr.push({...val})
+                for (let i = 0; i < val.quantity; i++) {
+                    newArr.push({ ...val })
                 }
                 return newArr
             });
@@ -77,8 +77,8 @@ export default class SaleController extends Controller {
                 totalAmount,
                 isBlacked
             }, id);
-            if(!id) {
-                await upsert(accounts, {billedFrom, billedTo, type: 'SALE', amount: totalAmount})
+            if (!id) {
+                await upsert(accounts, { billedFrom, billedTo, type: 'SALE', amount: totalAmount })
             }
             return {
                 data: saveResponse,
@@ -111,10 +111,10 @@ export default class SaleController extends Controller {
             // }, pageNumber, pageSize);
             const getAllResponse = await SaleInvoice.aggregate([
                 {
-                    $sort: {createdAt: -1}
+                    $sort: { createdAt: -1 }
                 },
                 {
-                    $match: { ...(status ? { status } : null), ...(isBlacked !== undefined ? {isBlacked} : null) }
+                    $match: { ...(status ? { status } : null), ...(isBlacked !== undefined ? { isBlacked } : null) }
                 },
                 {
                     $facet: {
@@ -143,17 +143,20 @@ export default class SaleController extends Controller {
                             {
                                 $group: {
                                     _id: "$_id",
-                                    billedFrom: {$first: "$billedFrom"},
-                                    billedTo: {$first: "$billedTo"},
-                                    shippingAddress:{$first: "$shippingAddress"},
-                                    totalAmount: {$first: "$totalAmount"},
-                                    invoiceNo: {$first: "$invoiceNo"},
-                                    invoiceDate: {$first: "$invoiceDate"},
-                                    dispatchThrough: {$first: "$dispatchThrough"},
-                                    createdAt: {$first: "$createdAt"},
+                                    billedFrom: { $first: "$billedFrom" },
+                                    billedTo: { $first: "$billedTo" },
+                                    shippingAddress: { $first: "$shippingAddress" },
+                                    totalAmount: { $first: "$totalAmount" },
+                                    invoiceNo: { $first: "$invoiceNo" },
+                                    invoiceDate: { $first: "$invoiceDate" },
+                                    dispatchThrough: { $first: "$dispatchThrough" },
+                                    createdAt: { $first: "$createdAt" },
+                                    isBlacked: { $first: "$isBlacked" },
+                                    status: { $first: "$status" },
+                                    updatedAt: { $first: "$updatedAt" },
                                     products: {
                                         $push: {
-                                            productDetails: {$first: "$item"},
+                                            productDetails: { $first: "$item" },
                                             discount: "$products.discount",
                                             rate: "$products.rate",
                                             quantity: "$products.quantity",
@@ -197,7 +200,7 @@ export default class SaleController extends Controller {
                                 }
                             },
                             {
-                                $project: {'product': 0}
+                                $project: { 'product': 0 }
                             }
                             // {
                             //     $replaceRoot: { newRoot: { $mergeObjects: [{ $arrayElemAt: ["$brandDoc", 0] }, "$$ROOT"] } }
@@ -263,17 +266,20 @@ export default class SaleController extends Controller {
                 {
                     $group: {
                         _id: "$_id",
-                        billedFrom: {$first: "$billedFrom"},
-                        billedTo: {$first: "$billedTo"},
-                        shippingAddress:{$first: "$shippingAddress"},
-                        totalAmount: {$first: "$totalAmount"},
-                        invoiceNo: {$first: "$invoiceNo"},
-                        invoiceDate: {$first: "$invoiceDate"},
-                        dispatchThrough: {$first: "$dispatchThrough"},
-                        createdAt: {$first: "$createdAt"},
+                        billedFrom: { $first: "$billedFrom" },
+                        billedTo: { $first: "$billedTo" },
+                        shippingAddress: { $first: "$shippingAddress" },
+                        totalAmount: { $first: "$totalAmount" },
+                        invoiceNo: { $first: "$invoiceNo" },
+                        invoiceDate: { $first: "$invoiceDate" },
+                        dispatchThrough: { $first: "$dispatchThrough" },
+                        createdAt: { $first: "$createdAt" },
+                        isBlacked: { $first: "$isBlacked" },
+                        status: { $first: "$status" },
+                        updatedAt: { $first: "$updatedAt" },
                         products: {
                             $push: {
-                                productDetails: {$first: "$item"},
+                                productDetails: { $first: "$item" },
                                 discount: "$products.discount",
                                 rate: "$products.rate",
                                 quantity: "$products.quantity",
@@ -339,9 +345,9 @@ export default class SaleController extends Controller {
             if (!theOne) {
                 throw new Error('Invoice doesn\'t exists')
             }
-            const products = theOne.products; 
+            const products = theOne.products;
             console.log(products);
-            
+
             const oneProduct = products.find((val: { _id: any }) => val._id.equals(itemId));
             if (!oneProduct) {
                 throw new Error('No Such Product');
@@ -436,7 +442,7 @@ export default class SaleController extends Controller {
                 }
             }))
             console.log(res);
-            
+
             return {
                 data: saveResponse,
                 error: '',
@@ -459,18 +465,18 @@ export default class SaleController extends Controller {
     @Post("/updateSerialNumber")
     public async updateSerialNumber(@Body() request: { oldSerialNumber: string, newSerialNumber: string }): Promise<Response> {
         try {
-            const { oldSerialNumber, newSerialNumber} = request;
-            const theOne = await getAll(SaleInvoice, {products: {$elemMatch: {serialNumber: oldSerialNumber.trim()}}});
-            if(theOne.items.length === 0) {
+            const { oldSerialNumber, newSerialNumber } = request;
+            const theOne = await getAll(SaleInvoice, { products: { $elemMatch: { serialNumber: oldSerialNumber.trim() } } });
+            if (theOne.items.length === 0) {
                 throw new Error('No such entry found')
             }
             const [replaceable] = theOne.items;
             const updated = await SaleInvoice.updateOne({
                 _id: replaceable._id, "products.serialNumber": oldSerialNumber
             }, {
-                $set: {"products.$.serialNumber": newSerialNumber}
-            }, {lean: true, new: true})
-            
+                $set: { "products.$.serialNumber": newSerialNumber }
+            }, { lean: true, new: true })
+
             return {
                 data: updated,
                 error: '',
@@ -492,9 +498,9 @@ export default class SaleController extends Controller {
     @Patch("/cancelSaleInvoice")
     public async cancelSaleInvoice(@Body() request: { id: string, cancel: boolean }): Promise<Response> {
         try {
-            const { id, cancel} = request;
-            const updated = await upsert(SaleInvoice, {status: cancel ? 'CANCELLED' : 'ACTIVE'}, id)
-            
+            const { id, cancel } = request;
+            const updated = await upsert(SaleInvoice, { status: cancel ? 'CANCELLED' : 'ACTIVE' }, id)
+
             return {
                 data: updated,
                 error: '',
@@ -533,5 +539,5 @@ export default class SaleController extends Controller {
         }
     }
 
-    
+
 }
